@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -10,7 +11,21 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
+var (
+	docStyle = lipgloss.NewStyle().Margin(0, 0)
+
+	titleStyle = func() lipgloss.Style {
+		b := lipgloss.RoundedBorder()
+		b.Right = "├"
+		return lipgloss.NewStyle().BorderStyle(b).Padding(0, 1)
+	}()
+
+	infoStyle = func() lipgloss.Style {
+		b := lipgloss.RoundedBorder()
+		b.Left = "┤"
+		return titleStyle.Copy().BorderStyle(b)
+	}()
+)
 
 type item struct {
 	title, description string
@@ -31,6 +46,10 @@ func (m model) Init() tea.Cmd {
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var (
+		cmd  tea.Cmd
+		cmds []tea.Cmd
+	)
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -44,22 +63,29 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		if !m.ready {
 			m.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
+			m.viewport.YPosition = headerHeight
+
 			h, v := docStyle.GetFrameSize()
 			m.list.SetSize(msg.Width-h, msg.Height-v)
 
-			content := "hi"
-			m.viewport.SetContent(content)
+			content, _ := os.ReadFile("exercises/1-deploy-a-web-app.md")
+			m.viewport.SetContent(string(content))
 
 			m.ready = true
 		} else {
 			h, v := docStyle.GetFrameSize()
 			m.list.SetSize(msg.Width-h, msg.Height-v)
+
+			m.viewport.Width = msg.Width
+			m.viewport.Height = msg.Height - verticalMarginHeight
 		}
 	}
 
-	var cmd tea.Cmd
+	m.viewport, cmd = m.viewport.Update(msg)
+	cmds = append(cmds, cmd)
+
 	m.list, cmd = m.list.Update(msg)
-	return m, cmd
+	return m, tea.Batch(cmds...)
 }
 
 func (m model) View() string {
@@ -77,11 +103,18 @@ func (m model) View() string {
 }
 
 func (m model) headerView() string {
-	return "header"
+	title := titleStyle.Render("Header")
+	line := strings.Repeat("─", max(0, m.viewport.Width-lipgloss.Width(title)))
+	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
 }
 
 func (m model) footerView() string {
-	return "footer"
+	info := infoStyle.Render(fmt.Sprintf("%3.f%%", m.viewport.ScrollPercent()*100))
+	line := strings.Repeat(
+		"─",
+		max(0, m.viewport.Width-lipgloss.Width(info)-lipgloss.Width(m.list.View())),
+	)
+	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
 func main() {
