@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -20,7 +21,9 @@ func (i item) FilterValue() string { return i.title }
 func (i item) Description() string { return i.description }
 
 type model struct {
-	list list.Model
+	ready    bool
+	list     list.Model
+	viewport viewport.Model
 }
 
 func (m model) Init() tea.Cmd {
@@ -35,8 +38,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 	case tea.WindowSizeMsg:
-		h, v := docStyle.GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
+		headerHeight := lipgloss.Height(m.headerView())
+		footerHeight := lipgloss.Height(m.footerView())
+		verticalMarginHeight := headerHeight + footerHeight
+
+		if !m.ready {
+			m.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
+			h, v := docStyle.GetFrameSize()
+			m.list.SetSize(msg.Width-h, msg.Height-v)
+
+			content := "hi"
+			m.viewport.SetContent(content)
+
+			m.ready = true
+		} else {
+			h, v := docStyle.GetFrameSize()
+			m.list.SetSize(msg.Width-h, msg.Height-v)
+		}
 	}
 
 	var cmd tea.Cmd
@@ -45,7 +63,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	return docStyle.Render(m.list.View())
+	if !m.ready {
+		return "\n Initialising...."
+	}
+
+	renderedViewport := fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView())
+
+	return lipgloss.JoinHorizontal(
+		lipgloss.Left,
+		docStyle.Render(m.list.View()),
+		renderedViewport,
+	)
+}
+
+func (m model) headerView() string {
+	return "header"
+}
+
+func (m model) footerView() string {
+	return "footer"
 }
 
 func main() {
