@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -22,18 +21,6 @@ var (
 			Margin(0, 0).
 			BorderForeground(lipgloss.Color("63")).
 			Border(lipgloss.RoundedBorder())
-
-	titleStyle = func() lipgloss.Style {
-		b := lipgloss.RoundedBorder()
-		b.Right = "├"
-		return lipgloss.NewStyle().BorderStyle(b).Padding(0, 1)
-	}()
-
-	infoStyle = func() lipgloss.Style {
-		b := lipgloss.RoundedBorder()
-		b.Left = "┤"
-		return titleStyle.Copy().BorderStyle(b)
-	}()
 
 	logfile, _ = os.OpenFile("log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	logger     = log.New(logfile)
@@ -129,21 +116,6 @@ func (m model) View() string {
 			focusedStyle.Render(m.viewport.View()),
 		)
 	}
-}
-
-func (m model) headerView() string {
-	title := titleStyle.Render("Header")
-	line := strings.Repeat("─", max(0, m.viewport.Width-lipgloss.Width(title)))
-	return lipgloss.JoinHorizontal(lipgloss.Center, title, line)
-}
-
-func (m model) footerView() string {
-	info := infoStyle.Render(fmt.Sprintf("%3.f%%", m.viewport.ScrollPercent()*100))
-	line := strings.Repeat(
-		"─",
-		max(0, m.viewport.Width-lipgloss.Width(info)-lipgloss.Width(m.list.View())),
-	)
-	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
 type T struct {
