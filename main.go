@@ -14,7 +14,13 @@ import (
 )
 
 var (
-	docStyle = lipgloss.NewStyle().Margin(0, 0)
+	listStyle = lipgloss.NewStyle().
+			Margin(0, 0).
+			Border(lipgloss.RoundedBorder())
+
+	viewportStyle = lipgloss.NewStyle().
+			Margin(0, 0).
+			Border(lipgloss.RoundedBorder())
 
 	titleStyle = func() lipgloss.Style {
 		b := lipgloss.RoundedBorder()
@@ -64,30 +70,29 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "j", "k":
 		}
 	case tea.WindowSizeMsg:
-		headerHeight := lipgloss.Height(m.headerView())
-		footerHeight := lipgloss.Height(m.footerView())
-		verticalMarginHeight := headerHeight + footerHeight
+		listMarginWidth, listMarginHeight := listStyle.GetFrameSize()
+		viewportMarginWidth, viewportMarginHeight := viewportStyle.GetFrameSize()
+
+		listWidth := lipgloss.Width(m.list.View()) + listMarginWidth
+		listHeight := msg.Height - listMarginHeight
+		viewportWidth := msg.Width - viewportMarginWidth - listWidth - 1
+		viewportHeight := msg.Height - viewportMarginHeight
 
 		if !m.ready {
-			m.viewport = viewport.New(msg.Width, msg.Height-verticalMarginHeight)
-			m.viewport.YPosition = headerHeight
+			m.list.SetSize(listWidth, listHeight)
 
-			h, v := docStyle.GetFrameSize()
-			m.list.SetSize(msg.Width-h, msg.Height-v)
+			m.viewport = viewport.New(viewportWidth, viewportHeight)
 
 			selectedItem := m.list.SelectedItem()
 			selectedExercise := selectedItem.(Exercise)
 			m.viewport.SetContent(selectedExercise.content)
 
 			m.ready = true
-
-			m.viewport.YPosition = headerHeight + 1
 		} else {
-			h, v := docStyle.GetFrameSize()
-			m.list.SetSize(msg.Width-h, msg.Height-v)
+			m.list.SetSize(listWidth, listHeight)
 
-			m.viewport.Width = msg.Width
-			m.viewport.Height = msg.Height - verticalMarginHeight
+			m.viewport.Width = viewportWidth
+			m.viewport.Height = viewportHeight
 		}
 	}
 
@@ -103,12 +108,10 @@ func (m model) View() string {
 		return "\n Initialising...."
 	}
 
-	renderedViewport := fmt.Sprintf("%s\n%s\n%s", m.headerView(), m.viewport.View(), m.footerView())
-
 	return lipgloss.JoinHorizontal(
-		lipgloss.Left,
-		docStyle.Render(m.list.View()),
-		renderedViewport,
+		lipgloss.Top,
+		listStyle.Render(m.list.View()),
+		viewportStyle.Render(m.viewport.View()),
 	)
 }
 
