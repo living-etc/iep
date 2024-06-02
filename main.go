@@ -47,10 +47,8 @@ func (i Exercise) FilterValue() string { return i.title }
 func (i Exercise) Description() string { return i.description }
 
 type model struct {
-	ready    bool
 	list     list.Model
 	viewport viewport.Model
-	selected int
 }
 
 func (m model) Init() tea.Cmd {
@@ -78,22 +76,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		viewportWidth := msg.Width - viewportMarginWidth - listWidth - 1
 		viewportHeight := msg.Height - viewportMarginHeight
 
-		if !m.ready {
-			m.list.SetSize(listWidth, listHeight)
+		m.list.SetSize(listWidth, listHeight)
+		m.viewport.Width = viewportWidth
+		m.viewport.Height = viewportHeight
 
-			m.viewport = viewport.New(viewportWidth, viewportHeight)
-
-			selectedItem := m.list.SelectedItem()
-			selectedExercise := selectedItem.(Exercise)
-			m.viewport.SetContent(selectedExercise.content)
-
-			m.ready = true
-		} else {
-			m.list.SetSize(listWidth, listHeight)
-
-			m.viewport.Width = viewportWidth
-			m.viewport.Height = viewportHeight
-		}
+		selectedItem := m.list.SelectedItem()
+		selectedExercise := selectedItem.(Exercise)
+		m.viewport.SetContent(selectedExercise.content)
 	}
 
 	m.viewport, cmd = m.viewport.Update(msg)
@@ -104,9 +93,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	if !m.ready {
-		return "\n Initialising...."
-	}
+	m.list.Title = "Exercises"
 
 	return lipgloss.JoinHorizontal(
 		lipgloss.Top,
@@ -136,9 +123,7 @@ type T struct {
 	Content     string
 }
 
-func main() {
-	logger.SetLevel(log.DebugLevel)
-
+func initializeModel() model {
 	files, err := os.ReadDir("./exercises/")
 	if err != nil {
 		log.Fatal(err)
@@ -161,16 +146,19 @@ func main() {
 			items,
 			Exercise{title: t.Title, description: t.Description, content: t.Content},
 		)
-
-		logger.Debug(t)
 	}
 
-	model := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
-	model.list.Title = "Exercises"
+	return model{
+		list:     list.New(items, list.NewDefaultDelegate(), 0, 0),
+		viewport: viewport.New(0, 0),
+	}
+}
 
-	p := tea.NewProgram(model, tea.WithAltScreen())
-
-	if _, err := p.Run(); err != nil {
+func main() {
+	if _, err := tea.NewProgram(
+		initializeModel(),
+		tea.WithAltScreen(),
+	).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
