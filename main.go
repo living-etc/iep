@@ -68,10 +68,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "j", "k":
-		case "l":
-			m.focused = "viewport"
-		case "h":
-			m.focused = "list"
+		case "tab":
+			var enableList, enableViewport bool
+			if m.focused == "list" {
+				m.focused = "viewport"
+
+				enableList = false
+				enableViewport = true
+			} else {
+				m.focused = "list"
+
+				enableList = true
+				enableViewport = false
+			}
+
+			m.viewport.KeyMap.Down.SetEnabled(enableViewport)
+			m.viewport.KeyMap.Up.SetEnabled(enableViewport)
+
+			m.list.KeyMap.CursorDown.SetEnabled(enableList)
+			m.list.KeyMap.CursorUp.SetEnabled(enableList)
 		}
 	case tea.WindowSizeMsg:
 		listMarginWidth, listMarginHeight := unfocusedStyle.GetFrameSize()
@@ -162,11 +177,19 @@ func initializeModel() model {
 		)
 	}
 
-	return model{
+	model := model{
 		list:     list.New(items, list.NewDefaultDelegate(), 0, 0),
 		viewport: viewport.New(0, 0),
 		focused:  "list",
 	}
+
+	model.viewport.KeyMap.Down.SetEnabled(false)
+	model.viewport.KeyMap.Up.SetEnabled(false)
+
+	model.list.KeyMap.CursorDown.SetEnabled(true)
+	model.list.KeyMap.CursorUp.SetEnabled(true)
+
+	return model
 }
 
 func main() {
