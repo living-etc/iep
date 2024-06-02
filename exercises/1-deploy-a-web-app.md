@@ -1,3 +1,7 @@
+---
+title: Deploy a web server
+description: Deploy a web application to a Linux environment
+content: |
 # Deploy A Web App
 
 In this exercise you will deploy a web app to a Linux virtual machine running
