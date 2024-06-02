@@ -12,7 +12,8 @@ content: |
   - configure the security group to allow inbound traffic from the internet
   
   The final setup will look like this:
-  
+
+  ```
                    ┌──────────────────────────────────────┐
                    │                                      │
                    │  ┌────────────────────────────────┐  │
@@ -28,6 +29,7 @@ content: |
                    │                                      │
                    │       Security Group (Firewall)      │
                    └──────────────────────────────────────┘
+  ```
   
   ## 1. Deploy the app
   Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam dolor elit, eleifend ut sagittis pulvinar, aliquet vitae lorem. Mauris fermentum tempus efficitur. Donec sit amet diam tincidunt diam luctus suscipit aliquam eu tellus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Praesent condimentum ex quis augue efficitur congue. Donec rhoncus ante in lorem congue, sed semper dui commodo. Cras leo sem, consectetur id nunc ac, fermentum faucibus justo. Aenean malesuada urna a risus volutpat, eu rhoncus dui euismod. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Pellentesque id sollicitudin lorem. Aliquam quis tortor ex. Interdum et malesuada fames ac ante ipsum primis in faucibus. Praesent vitae faucibus risus.

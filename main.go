@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/log"
 	"gopkg.in/yaml.v3"
@@ -111,7 +112,12 @@ func (m model) View() string {
 
 	selectedItem := m.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
-	m.viewport.SetContent(selectedExercise.content)
+
+	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
+	if err != nil {
+		log.Fatal(err)
+	}
+	m.viewport.SetContent(glamouriseContent)
 
 	if m.focused == "list" {
 		return lipgloss.JoinHorizontal(
