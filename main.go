@@ -38,6 +38,7 @@ type model struct {
 	list     list.Model
 	viewport viewport.Model
 	focused  string
+	cursor   int
 }
 
 func (m model) Init() tea.Cmd {
@@ -54,7 +55,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		case "j", "k":
+		case "down", "j":
+			if m.cursor < len(m.list.Items())-1 {
+				m.cursor++
+			}
+		case "up", "k":
+			if m.cursor > 0 {
+				m.cursor--
+			}
 		case "tab":
 			var enableList, enableViewport bool
 			if m.focused == "list" {
@@ -87,10 +95,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetSize(listWidth, listHeight)
 		m.viewport.Width = viewportWidth
 		m.viewport.Height = viewportHeight
-
-		selectedItem := m.list.SelectedItem()
-		selectedExercise := selectedItem.(Exercise)
-		m.viewport.SetContent(selectedExercise.content)
 	}
 
 	m.viewport, cmd = m.viewport.Update(msg)
@@ -102,6 +106,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() string {
 	m.list.Title = "Exercises"
+
+	m.list.Select(m.cursor)
+
+	selectedItem := m.list.SelectedItem()
+	selectedExercise := selectedItem.(Exercise)
+	m.viewport.SetContent(selectedExercise.content)
 
 	if m.focused == "list" {
 		return lipgloss.JoinHorizontal(
