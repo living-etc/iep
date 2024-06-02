@@ -14,12 +14,13 @@ import (
 )
 
 var (
-	listStyle = lipgloss.NewStyle().
+	unfocusedStyle = lipgloss.NewStyle().
 			Margin(0, 0).
 			Border(lipgloss.RoundedBorder())
 
-	viewportStyle = lipgloss.NewStyle().
+	focusedStyle = lipgloss.NewStyle().
 			Margin(0, 0).
+			BorderForeground(lipgloss.Color("63")).
 			Border(lipgloss.RoundedBorder())
 
 	titleStyle = func() lipgloss.Style {
@@ -49,6 +50,7 @@ func (i Exercise) Description() string { return i.description }
 type model struct {
 	list     list.Model
 	viewport viewport.Model
+	focused  string
 }
 
 func (m model) Init() tea.Cmd {
@@ -66,10 +68,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "j", "k":
+		case "l":
+			m.focused = "viewport"
+		case "h":
+			m.focused = "list"
 		}
 	case tea.WindowSizeMsg:
-		listMarginWidth, listMarginHeight := listStyle.GetFrameSize()
-		viewportMarginWidth, viewportMarginHeight := viewportStyle.GetFrameSize()
+		listMarginWidth, listMarginHeight := unfocusedStyle.GetFrameSize()
+		viewportMarginWidth, viewportMarginHeight := unfocusedStyle.GetFrameSize()
 
 		listWidth := lipgloss.Width(m.list.View()) + listMarginWidth
 		listHeight := msg.Height - listMarginHeight
@@ -95,11 +101,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	m.list.Title = "Exercises"
 
-	return lipgloss.JoinHorizontal(
-		lipgloss.Top,
-		listStyle.Render(m.list.View()),
-		viewportStyle.Render(m.viewport.View()),
-	)
+	if m.focused == "list" {
+		return lipgloss.JoinHorizontal(
+			lipgloss.Top,
+			focusedStyle.Render(m.list.View()),
+			unfocusedStyle.Render(m.viewport.View()),
+		)
+	} else {
+		return lipgloss.JoinHorizontal(
+			lipgloss.Top,
+			unfocusedStyle.Render(m.list.View()),
+			focusedStyle.Render(m.viewport.View()),
+		)
+	}
 }
 
 func (m model) headerView() string {
@@ -151,6 +165,7 @@ func initializeModel() model {
 	return model{
 		list:     list.New(items, list.NewDefaultDelegate(), 0, 0),
 		viewport: viewport.New(0, 0),
+		focused:  "list",
 	}
 }
 
