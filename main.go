@@ -72,6 +72,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport.SetContent(string(content))
 
 			m.ready = true
+
+			m.viewport.YPosition = headerHeight + 1
 		} else {
 			h, v := docStyle.GetFrameSize()
 			m.list.SetSize(msg.Width-h, msg.Height-v)
