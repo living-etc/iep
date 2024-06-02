@@ -9,6 +9,8 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/log"
+	"gopkg.in/yaml.v3"
 )
 
 var (
@@ -25,20 +27,24 @@ var (
 		b.Left = "┤"
 		return titleStyle.Copy().BorderStyle(b)
 	}()
+
+	logfile, _ = os.OpenFile("log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
+	logger     = log.New(logfile)
 )
 
-type item struct {
-	title, description string
+type Exercise struct {
+	title, description, content string
 }
 
-func (i item) Title() string       { return i.title }
-func (i item) FilterValue() string { return i.title }
-func (i item) Description() string { return i.description }
+func (i Exercise) Title() string       { return i.title }
+func (i Exercise) FilterValue() string { return i.title }
+func (i Exercise) Description() string { return i.description }
 
 type model struct {
 	ready    bool
 	list     list.Model
 	viewport viewport.Model
+	selected int
 }
 
 func (m model) Init() tea.Cmd {
@@ -55,6 +61,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
+		case "j", "k":
 		}
 	case tea.WindowSizeMsg:
 		headerHeight := lipgloss.Height(m.headerView())
@@ -68,8 +75,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			h, v := docStyle.GetFrameSize()
 			m.list.SetSize(msg.Width-h, msg.Height-v)
 
-			content, _ := os.ReadFile("exercises/1-deploy-a-web-app.md")
-			m.viewport.SetContent(string(content))
+			selectedItem := m.list.SelectedItem()
+			selectedExercise := selectedItem.(Exercise)
+			m.viewport.SetContent(selectedExercise.content)
 
 			m.ready = true
 
@@ -119,16 +127,39 @@ func (m model) footerView() string {
 	return lipgloss.JoinHorizontal(lipgloss.Center, line, info)
 }
 
+type T struct {
+	Title       string
+	Description string
+	Content     string
+}
+
 func main() {
-	items := []list.Item{
-		item{
-			title:       "Deploy a web server",
-			description: "Deploy a web application to a Linux environment",
-		},
-		item{
-			title:       "Set up a subdomain",
-			description: "Create a subdomain on a DNS zone",
-		},
+	logger.SetLevel(log.DebugLevel)
+
+	files, err := os.ReadDir("./exercises/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var items []list.Item
+	for _, file := range files {
+		exercise, err := os.ReadFile("exercises/" + file.Name())
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		var t T
+		err = yaml.Unmarshal([]byte(exercise), &t)
+		if err != nil {
+			logger.Debug(err)
+		}
+
+		items = append(
+			items,
+			Exercise{title: t.Title, description: t.Description, content: t.Content},
+		)
+
+		logger.Debug(t)
 	}
 
 	model := model{list: list.New(items, list.NewDefaultDelegate(), 0, 0)}
