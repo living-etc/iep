@@ -175,6 +175,7 @@ func initializeModel() model {
 }
 
 func main() {
+	logger.SetLevel(log.DebugLevel)
 	if _, err := tea.NewProgram(
 		initializeModel(),
 		tea.WithAltScreen(),
