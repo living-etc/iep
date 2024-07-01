@@ -108,7 +108,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() string {
 	m.list.Title = "Exercises"
 
-	m.list.Select(m.cursor)
+	if m.focused == "list" {
+		m.list.Select(m.cursor)
+	}
 
 	selectedItem := m.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
