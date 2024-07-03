@@ -57,12 +57,34 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "down", "j":
-			if m.cursor < len(m.list.Items())-1 {
+			if m.focused == "list" && m.cursor < len(m.list.Items())-1 {
 				m.cursor++
+
+				m.list.Select(m.cursor)
+
+				selectedItem := m.list.SelectedItem()
+				selectedExercise := selectedItem.(Exercise)
+
+				glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
+				if err != nil {
+					log.Fatal(err)
+				}
+				m.viewport.SetContent(glamouriseContent)
 			}
 		case "up", "k":
-			if m.cursor > 0 {
+			if m.focused == "list" && m.cursor > 0 {
 				m.cursor--
+
+				m.list.Select(m.cursor)
+
+				selectedItem := m.list.SelectedItem()
+				selectedExercise := selectedItem.(Exercise)
+
+				glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
+				if err != nil {
+					log.Fatal(err)
+				}
+				m.viewport.SetContent(glamouriseContent)
 			}
 		case "tab":
 			var enableList, enableViewport bool
@@ -106,19 +128,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	if m.focused == "list" {
-		m.list.Select(m.cursor)
-	}
-
-	selectedItem := m.list.SelectedItem()
-	selectedExercise := selectedItem.(Exercise)
-
-	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
-	if err != nil {
-		log.Fatal(err)
-	}
-	m.viewport.SetContent(glamouriseContent)
-
 	if m.focused == "list" {
 		return lipgloss.JoinHorizontal(
 			lipgloss.Top,
@@ -178,6 +187,15 @@ func initializeModel() model {
 	model.list.KeyMap.CursorUp.SetEnabled(true)
 
 	model.list.Title = "Exercises"
+
+	selectedItem := model.list.SelectedItem()
+	selectedExercise := selectedItem.(Exercise)
+
+	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
+	if err != nil {
+		log.Fatal(err)
+	}
+	model.viewport.SetContent(glamouriseContent)
 
 	return model
 }
