@@ -106,8 +106,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m model) View() string {
-	m.list.Title = "Exercises"
-
 	if m.focused == "list" {
 		m.list.Select(m.cursor)
 	}
@@ -178,6 +176,8 @@ func initializeModel() model {
 
 	model.list.KeyMap.CursorDown.SetEnabled(true)
 	model.list.KeyMap.CursorUp.SetEnabled(true)
+
+	model.list.Title = "Exercises"
 
 	return model
 }
