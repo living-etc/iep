@@ -8,33 +8,37 @@ import (
 )
 
 func TestNewModel(t *testing.T) {
-	//tests := []struct {
-	//	keystrokes []tea.Key
-	//	model      Model
-	//}{
-	//	{
-	//		keystrokes: []tea.Key{
-	//			{Type: tea.KeyRunes, Runes: []rune("j")},
-	//		},
-	//	},
-	//}
+	tests := []struct {
+		keystrokes []tea.KeyMsg
+		model      Model
+	}{
+		{
+			model: Model{
+				cursor: 1,
+			},
+			keystrokes: []tea.KeyMsg{
+				{Type: tea.KeyRunes, Runes: []rune{'j'}},
+			},
+		},
+	}
 
-	tm := teatest.NewTestModel(t, NewModel())
+	testModel := teatest.NewTestModel(t, NewModel())
 
-	tm.Send(tea.KeyMsg{
-		Type:  tea.KeyRunes,
-		Runes: []rune("j"),
-	})
+	for _, tt := range tests {
+		for _, keystroke := range tt.keystrokes {
+			testModel.Send(keystroke)
+		}
 
-	tm.Send(tea.KeyMsg{
-		Type:  tea.KeyRunes,
-		Runes: []rune("q"),
-	})
+		testModel.Send(tea.KeyMsg{
+			Type:  tea.KeyRunes,
+			Runes: []rune("q"),
+		})
 
-	fm := tm.FinalModel(t)
-	m, _ := fm.(Model)
+		modelGot := testModel.FinalModel(t).(Model)
+		modelWant := tt.model
 
-	if m.cursor != 1 {
-		t.Fatalf("want: %v, got: %v", 1, m.cursor)
+		if modelGot.cursor != modelWant.cursor {
+			t.Fatalf("want: %v, got: %v", modelWant.cursor, modelGot.cursor)
+		}
 	}
 }
