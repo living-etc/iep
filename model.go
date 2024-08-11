@@ -24,10 +24,11 @@ var (
 )
 
 type Model struct {
-	list     list.Model
-	viewport viewport.Model
-	focused  string
-	cursor   int
+	list                list.Model
+	exerciseDescription viewport.Model
+	focused             string
+	cursor              int
+	outputConsole       viewport.Model
 }
 
 type T struct {
@@ -62,13 +63,14 @@ func NewModel() Model {
 	}
 
 	model := Model{
-		list:     list.New(items, list.NewDefaultDelegate(), 0, 0),
-		viewport: viewport.New(0, 0),
-		focused:  "list",
+		list:                list.New(items, list.NewDefaultDelegate(), 0, 0),
+		exerciseDescription: viewport.New(0, 0),
+		outputConsole:       viewport.New(0, 0),
+		focused:             "list",
 	}
 
-	model.viewport.KeyMap.Down.SetEnabled(false)
-	model.viewport.KeyMap.Up.SetEnabled(false)
+	model.exerciseDescription.KeyMap.Down.SetEnabled(false)
+	model.exerciseDescription.KeyMap.Up.SetEnabled(false)
 
 	model.list.KeyMap.CursorDown.SetEnabled(true)
 	model.list.KeyMap.CursorUp.SetEnabled(true)
@@ -82,7 +84,7 @@ func NewModel() Model {
 	if err != nil {
 		log.Fatal(err)
 	}
-	model.viewport.SetContent(glamouriseContent)
+	model.exerciseDescription.SetContent(glamouriseContent)
 
 	return model
 }
@@ -114,7 +116,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					log.Fatal(err)
 				}
-				m.viewport.SetContent(glamouriseContent)
+				m.exerciseDescription.SetContent(glamouriseContent)
 			}
 		case "up", "k":
 			if m.focused == "list" && m.cursor > 0 {
@@ -129,7 +131,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					log.Fatal(err)
 				}
-				m.viewport.SetContent(glamouriseContent)
+				m.exerciseDescription.SetContent(glamouriseContent)
 			}
 		case "tab":
 			var enableList, enableViewport bool
@@ -145,8 +147,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				enableViewport = false
 			}
 
-			m.viewport.KeyMap.Down.SetEnabled(enableViewport)
-			m.viewport.KeyMap.Up.SetEnabled(enableViewport)
+			m.exerciseDescription.KeyMap.Down.SetEnabled(enableViewport)
+			m.exerciseDescription.KeyMap.Up.SetEnabled(enableViewport)
 
 			m.list.KeyMap.CursorDown.SetEnabled(enableList)
 			m.list.KeyMap.CursorUp.SetEnabled(enableList)
@@ -161,11 +163,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		viewportHeight := msg.Height - viewportMarginHeight
 
 		m.list.SetSize(listWidth, listHeight)
-		m.viewport.Width = viewportWidth
-		m.viewport.Height = viewportHeight
+		m.exerciseDescription.Width = viewportWidth
+		m.exerciseDescription.Height = viewportHeight
 	}
 
-	m.viewport, cmd = m.viewport.Update(msg)
+	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
 	cmds = append(cmds, cmd)
 
 	m.list, cmd = m.list.Update(msg)
@@ -173,17 +175,15 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
+	var listRendered, exerciseDescriptionRendered string
+
 	if m.focused == "list" {
-		return lipgloss.JoinHorizontal(
-			lipgloss.Top,
-			focusedStyle.Render(m.list.View()),
-			unfocusedStyle.Render(m.viewport.View()),
-		)
+		listRendered = focusedStyle.Render(m.list.View())
+		exerciseDescriptionRendered = unfocusedStyle.Render(m.exerciseDescription.View())
 	} else {
-		return lipgloss.JoinHorizontal(
-			lipgloss.Top,
-			unfocusedStyle.Render(m.list.View()),
-			focusedStyle.Render(m.viewport.View()),
-		)
+		listRendered = unfocusedStyle.Render(m.list.View())
+		exerciseDescriptionRendered = focusedStyle.Render(m.exerciseDescription.View())
 	}
+
+	return lipgloss.JoinHorizontal(lipgloss.Top, listRendered, exerciseDescriptionRendered)
 }
