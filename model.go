@@ -12,16 +12,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var (
-	unfocusedStyle = lipgloss.NewStyle().
-			Margin(0, 0).
-			Border(lipgloss.RoundedBorder())
+type styles struct {
+	focused   lipgloss.Style
+	unfocused lipgloss.Style
+}
 
-	focusedStyle = lipgloss.NewStyle().
+func getStyles() styles {
+	return styles{
+		unfocused: lipgloss.NewStyle().Margin(0, 0).Border(lipgloss.RoundedBorder()),
+		focused: lipgloss.NewStyle().
 			Margin(0, 0).
 			BorderForeground(lipgloss.Color("63")).
-			Border(lipgloss.RoundedBorder())
-)
+			Border(lipgloss.RoundedBorder()),
+	}
+}
 
 type Model struct {
 	list                list.Model
@@ -154,8 +158,10 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.list.KeyMap.CursorUp.SetEnabled(enableList)
 		}
 	case tea.WindowSizeMsg:
-		listMarginWidth, listMarginHeight := unfocusedStyle.GetFrameSize()
-		viewportMarginWidth, viewportMarginHeight := unfocusedStyle.GetFrameSize()
+		styles := getStyles()
+
+		listMarginWidth, listMarginHeight := styles.unfocused.GetFrameSize()
+		viewportMarginWidth, viewportMarginHeight := styles.unfocused.GetFrameSize()
 
 		listWidth := lipgloss.Width(m.list.View()) + listMarginWidth
 		listHeight := msg.Height - listMarginHeight
@@ -177,12 +183,14 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	var listRendered, exerciseDescriptionRendered string
 
+	styles := getStyles()
+
 	if m.focused == "list" {
-		listRendered = focusedStyle.Render(m.list.View())
-		exerciseDescriptionRendered = unfocusedStyle.Render(m.exerciseDescription.View())
+		listRendered = styles.focused.Render(m.list.View())
+		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
 	} else {
-		listRendered = unfocusedStyle.Render(m.list.View())
-		exerciseDescriptionRendered = focusedStyle.Render(m.exerciseDescription.View())
+		listRendered = styles.unfocused.Render(m.list.View())
+		exerciseDescriptionRendered = styles.focused.Render(m.exerciseDescription.View())
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, listRendered, exerciseDescriptionRendered)
