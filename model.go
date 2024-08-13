@@ -33,6 +33,7 @@ type Model struct {
 	focused             string
 	cursor              int
 	outputConsole       viewport.Model
+	outputLog           string
 }
 
 type T struct {
@@ -73,11 +74,14 @@ func NewModel() Model {
 		focused:             "list",
 	}
 
+	model.list.KeyMap.CursorDown.SetEnabled(true)
+	model.list.KeyMap.CursorUp.SetEnabled(true)
+
 	model.exerciseDescription.KeyMap.Down.SetEnabled(false)
 	model.exerciseDescription.KeyMap.Up.SetEnabled(false)
 
-	model.list.KeyMap.CursorDown.SetEnabled(true)
-	model.list.KeyMap.CursorUp.SetEnabled(true)
+	model.outputConsole.KeyMap.Down.SetEnabled(false)
+	model.outputConsole.KeyMap.Up.SetEnabled(false)
 
 	model.list.Title = "Exercises"
 
@@ -138,17 +142,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.exerciseDescription.SetContent(glamouriseContent)
 			}
 		case "tab":
-			var enableList, enableViewport bool
+			var enableList, enableViewport, enableOutputConsole bool
 			if m.focused == "list" {
 				m.focused = "viewport"
 
 				enableList = false
 				enableViewport = true
+				enableOutputConsole = false
+			} else if m.focused == "viewport" {
+				m.focused = "output"
+
+				enableList = false
+				enableViewport = false
+				enableOutputConsole = true
 			} else {
 				m.focused = "list"
 
 				enableList = true
 				enableViewport = false
+				enableOutputConsole = false
 			}
 
 			m.exerciseDescription.KeyMap.Down.SetEnabled(enableViewport)
@@ -156,21 +168,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.list.KeyMap.CursorDown.SetEnabled(enableList)
 			m.list.KeyMap.CursorUp.SetEnabled(enableList)
+
+			m.outputConsole.KeyMap.Down.SetEnabled(enableOutputConsole)
+			m.outputConsole.KeyMap.Up.SetEnabled(enableOutputConsole)
+		case "enter":
+			m.outputLog += "\nPressed Enter"
+			m.outputConsole.SetContent(m.outputLog)
 		}
 	case tea.WindowSizeMsg:
 		styles := getStyles()
 
 		listMarginWidth, listMarginHeight := styles.unfocused.GetFrameSize()
 		viewportMarginWidth, viewportMarginHeight := styles.unfocused.GetFrameSize()
+		outputMarginWidth, outputMarginHeight := styles.unfocused.GetFrameSize()
 
 		listWidth := lipgloss.Width(m.list.View()) + listMarginWidth
 		listHeight := msg.Height - listMarginHeight
-		viewportWidth := msg.Width - viewportMarginWidth - listWidth - 1
+
+		outputWidth := listWidth
+		outputHeight := msg.Height - outputMarginHeight
+
+		viewportWidth := msg.Width - listWidth - outputWidth - viewportMarginWidth - outputMarginWidth - 1
 		viewportHeight := msg.Height - viewportMarginHeight
 
 		m.list.SetSize(listWidth, listHeight)
+
 		m.exerciseDescription.Width = viewportWidth
 		m.exerciseDescription.Height = viewportHeight
+
+		m.outputConsole.Width = outputWidth
+		m.outputConsole.Height = outputHeight
 	}
 
 	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
@@ -181,17 +208,28 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m Model) View() string {
-	var listRendered, exerciseDescriptionRendered string
+	var listRendered, exerciseDescriptionRendered, outputConsoleRendered string
 
 	styles := getStyles()
 
 	if m.focused == "list" {
 		listRendered = styles.focused.Render(m.list.View())
 		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
-	} else {
+		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
+	} else if m.focused == "viewport" {
 		listRendered = styles.unfocused.Render(m.list.View())
 		exerciseDescriptionRendered = styles.focused.Render(m.exerciseDescription.View())
+		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
+	} else {
+		listRendered = styles.unfocused.Render(m.list.View())
+		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
+		outputConsoleRendered = styles.focused.Render(m.outputConsole.View())
 	}
 
-	return lipgloss.JoinHorizontal(lipgloss.Top, listRendered, exerciseDescriptionRendered)
+	return lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		listRendered,
+		exerciseDescriptionRendered,
+		outputConsoleRendered,
+	)
 }
