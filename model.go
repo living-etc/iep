@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -172,8 +174,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.outputConsole.KeyMap.Down.SetEnabled(enableOutputConsole)
 			m.outputConsole.KeyMap.Up.SetEnabled(enableOutputConsole)
 		case "enter":
-			m.outputLog += "\nPressed Enter"
-			m.outputConsole.SetContent(m.outputLog)
+			m.logEvent("Enter pressed")
 		}
 	case tea.WindowSizeMsg:
 		styles := getStyles()
@@ -205,6 +206,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	m.list, cmd = m.list.Update(msg)
 	return m, tea.Batch(cmds...)
+}
+
+func (m *Model) logEvent(event string) {
+	m.outputLog += fmt.Sprintf("\n[%v] %v", time.Now(), event)
+	m.outputConsole.SetContent(m.outputLog)
 }
 
 func (m Model) View() string {
