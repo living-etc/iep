@@ -175,26 +175,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		styles := getStyles()
 
-		listMarginWidth, listMarginHeight := styles.unfocused.GetFrameSize()
-		viewportMarginWidth, viewportMarginHeight := styles.unfocused.GetFrameSize()
-		outputMarginWidth, outputMarginHeight := styles.unfocused.GetFrameSize()
+		_, frameHeight := styles.unfocused.GetFrameSize()
 
-		listWidth := lipgloss.Width(m.list.View()) + listMarginWidth
-		listHeight := msg.Height - listMarginHeight
+		scalingFactor := msg.Width / 100
 
-		outputWidth := listWidth
-		outputHeight := msg.Height - outputMarginHeight
+		m.list.SetWidth(scalingFactor * 53)
+		m.list.SetHeight(msg.Height - frameHeight)
 
-		viewportWidth := msg.Width - listWidth - outputWidth - viewportMarginWidth - outputMarginWidth - 1
-		viewportHeight := msg.Height - viewportMarginHeight
+		m.exerciseDescription.Width = scalingFactor * 80
+		m.exerciseDescription.Height = msg.Height - frameHeight
 
-		m.list.SetSize(listWidth, listHeight)
-
-		m.exerciseDescription.Width = viewportWidth
-		m.exerciseDescription.Height = viewportHeight
-
-		m.outputConsole.Width = outputWidth
-		m.outputConsole.Height = outputHeight
+		m.outputConsole.Width = scalingFactor * 52
+		m.outputConsole.Height = msg.Height - frameHeight
 	}
 
 	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
