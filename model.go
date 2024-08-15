@@ -225,8 +225,12 @@ func (keymap HelpKeyMap) ShortHelp() []key.Binding {
 			key.WithHelp("↓/j", "move down"),
 		),
 		key.NewBinding(
-			key.WithKeys("p"),
-			key.WithHelp("p", "Deploy Exercise"),
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "Deploy Exercise"),
+		),
+		key.NewBinding(
+			key.WithKeys("tab"),
+			key.WithHelp("tab", "Focus right"),
 		),
 	}
 }
