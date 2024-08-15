@@ -96,6 +96,9 @@ func NewModel() Model {
 	}
 	model.exerciseDescription.SetContent(glamouriseContent)
 
+	model.outputLog = "Output Log"
+	model.outputConsole.SetContent(model.outputLog)
+
 	return model
 }
 
@@ -204,13 +207,17 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
 	cmds = append(cmds, cmd)
 
+	m.outputConsole, cmd = m.outputConsole.Update(msg)
+	cmds = append(cmds, cmd)
+
 	m.list, cmd = m.list.Update(msg)
 	return m, tea.Batch(cmds...)
 }
 
 func (m *Model) logEvent(event string) {
-	m.outputLog += fmt.Sprintf("\n[%v] %v", time.Now(), event)
+	m.outputLog += fmt.Sprintf("\n[%v] %v", time.Now().Format("15:04:05"), event)
 	m.outputConsole.SetContent(m.outputLog)
+	m.outputConsole.GotoBottom()
 }
 
 func (m Model) View() string {
