@@ -106,6 +106,19 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
+func (m *Model) updateSelectedExercise() {
+	m.list.Select(m.cursor)
+
+	selectedItem := m.list.SelectedItem()
+	selectedExercise := selectedItem.(Exercise)
+
+	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
+	if err != nil {
+		log.Fatal(err)
+	}
+	m.exerciseDescription.SetContent(glamouriseContent)
+}
+
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmd  tea.Cmd
@@ -119,32 +132,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "down", "j":
 			if m.focused == "list" && m.cursor < len(m.list.Items())-1 {
 				m.cursor++
-
-				m.list.Select(m.cursor)
-
-				selectedItem := m.list.SelectedItem()
-				selectedExercise := selectedItem.(Exercise)
-
-				glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
-				if err != nil {
-					log.Fatal(err)
-				}
-				m.exerciseDescription.SetContent(glamouriseContent)
+				m.updateSelectedExercise()
 			}
 		case "up", "k":
 			if m.focused == "list" && m.cursor > 0 {
 				m.cursor--
-
-				m.list.Select(m.cursor)
-
-				selectedItem := m.list.SelectedItem()
-				selectedExercise := selectedItem.(Exercise)
-
-				glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
-				if err != nil {
-					log.Fatal(err)
-				}
-				m.exerciseDescription.SetContent(glamouriseContent)
+				m.updateSelectedExercise()
 			}
 		case "tab":
 			var enableList, enableViewport, enableOutputConsole bool
