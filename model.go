@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
@@ -36,6 +38,7 @@ type Model struct {
 	cursor              int
 	outputConsole       viewport.Model
 	outputLog           string
+	help                help.Model
 }
 
 type T struct {
@@ -73,6 +76,7 @@ func NewModel() Model {
 		list:                list.New(items, list.NewDefaultDelegate(), 0, 0),
 		exerciseDescription: viewport.New(0, 0),
 		outputConsole:       viewport.New(0, 0),
+		help:                help.New(),
 		focused:             "list",
 	}
 
@@ -180,14 +184,16 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		scalingFactor := msg.Width / 100
 
+		helpHeight := lipgloss.Height(m.help.View(HelpKeyMap{}))
+
 		m.list.SetWidth(scalingFactor * 53)
-		m.list.SetHeight(msg.Height - frameHeight)
+		m.list.SetHeight(msg.Height - frameHeight - helpHeight)
 
 		m.exerciseDescription.Width = scalingFactor * 80
-		m.exerciseDescription.Height = msg.Height - frameHeight
+		m.exerciseDescription.Height = msg.Height - frameHeight - helpHeight
 
 		m.outputConsole.Width = scalingFactor * 52
-		m.outputConsole.Height = msg.Height - frameHeight
+		m.outputConsole.Height = msg.Height - frameHeight - helpHeight
 	}
 
 	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
@@ -204,6 +210,29 @@ func (m *Model) logEvent(event string) {
 	m.outputLog += fmt.Sprintf("\n[%v] %v", time.Now().Format("15:04:05"), event)
 	m.outputConsole.SetContent(m.outputLog)
 	m.outputConsole.GotoBottom()
+}
+
+type HelpKeyMap struct{}
+
+func (keymap HelpKeyMap) ShortHelp() []key.Binding {
+	return []key.Binding{
+		key.NewBinding(
+			key.WithKeys("k", "up"),
+			key.WithHelp("↑/k", "Select up"),
+		),
+		key.NewBinding(
+			key.WithKeys("j", "down"),
+			key.WithHelp("↓/j", "move down"),
+		),
+		key.NewBinding(
+			key.WithKeys("p"),
+			key.WithHelp("p", "Deploy Exercise"),
+		),
+	}
+}
+
+func (keymap HelpKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{}
 }
 
 func (m Model) View() string {
@@ -225,10 +254,18 @@ func (m Model) View() string {
 		outputConsoleRendered = styles.focused.Render(m.outputConsole.View())
 	}
 
-	return lipgloss.JoinHorizontal(
+	helpRendered := m.help.View(HelpKeyMap{})
+
+	horizontal := lipgloss.JoinHorizontal(
 		lipgloss.Top,
 		listRendered,
 		exerciseDescriptionRendered,
 		outputConsoleRendered,
+	)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Top,
+		horizontal,
+		helpRendered,
 	)
 }
