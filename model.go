@@ -86,6 +86,7 @@ func NewModel() Model {
 	model.outputConsole.KeyMap.Up.SetEnabled(false)
 
 	model.list.Title = "Exercises"
+	model.list.SetShowHelp(false)
 
 	selectedItem := model.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
