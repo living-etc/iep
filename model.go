@@ -8,7 +8,6 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
@@ -34,7 +33,7 @@ func getStyles() styles {
 type Model struct {
 	exerciseList        ExerciseList
 	exerciseDescription ExerciseDescription
-	outputConsole       viewport.Model
+	outputConsole       OutputConsole
 	help                help.Model
 	focused             string
 	cursor              int
@@ -75,7 +74,7 @@ func NewModel() Model {
 	model := Model{
 		exerciseList:        NewExerciseList(items),
 		exerciseDescription: NewExerciseDescription(),
-		outputConsole:       viewport.New(0, 0),
+		outputConsole:       NewOutputConsole(),
 		help:                help.New(),
 		focused:             "list",
 	}
@@ -86,8 +85,8 @@ func NewModel() Model {
 	model.exerciseDescription.viewport.KeyMap.Down.SetEnabled(false)
 	model.exerciseDescription.viewport.KeyMap.Up.SetEnabled(false)
 
-	model.outputConsole.KeyMap.Down.SetEnabled(false)
-	model.outputConsole.KeyMap.Up.SetEnabled(false)
+	model.outputConsole.viewport.KeyMap.Down.SetEnabled(false)
+	model.outputConsole.viewport.KeyMap.Up.SetEnabled(false)
 
 	model.exerciseList.list.Title = "Exercises"
 	model.exerciseList.list.SetShowHelp(false)
@@ -102,7 +101,7 @@ func NewModel() Model {
 	model.exerciseDescription.viewport.SetContent(glamouriseContent)
 
 	model.outputLog = "Output Log"
-	model.outputConsole.SetContent(model.outputLog)
+	model.outputConsole.viewport.SetContent(model.outputLog)
 
 	return model
 }
@@ -172,8 +171,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.exerciseList.list.KeyMap.CursorDown.SetEnabled(enableList)
 			m.exerciseList.list.KeyMap.CursorUp.SetEnabled(enableList)
 
-			m.outputConsole.KeyMap.Down.SetEnabled(enableOutputConsole)
-			m.outputConsole.KeyMap.Up.SetEnabled(enableOutputConsole)
+			m.outputConsole.viewport.KeyMap.Down.SetEnabled(enableOutputConsole)
+			m.outputConsole.viewport.KeyMap.Up.SetEnabled(enableOutputConsole)
 		case "enter":
 			m.logEvent("Enter pressed")
 		}
@@ -192,8 +191,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.exerciseDescription.viewport.Width = scalingFactor * 80
 		m.exerciseDescription.viewport.Height = msg.Height - frameHeight - helpHeight
 
-		m.outputConsole.Width = scalingFactor * 52
-		m.outputConsole.Height = msg.Height - frameHeight - helpHeight
+		m.outputConsole.viewport.Width = scalingFactor * 52
+		m.outputConsole.viewport.Height = msg.Height - frameHeight - helpHeight
 	}
 
 	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
@@ -210,8 +209,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m *Model) logEvent(event string) {
 	m.outputLog += fmt.Sprintf("\n[%v] %v", time.Now().Format("15:04:05"), event)
-	m.outputConsole.SetContent(m.outputLog)
-	m.outputConsole.GotoBottom()
+	m.outputConsole.viewport.SetContent(m.outputLog)
+	m.outputConsole.viewport.GotoBottom()
 }
 
 type HelpKeyMap struct{}
