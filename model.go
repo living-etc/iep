@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
@@ -168,7 +167,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		scalingFactor := msg.Width / 100
 
-		helpHeight := lipgloss.Height(m.help.View(HelpKeyMap{}))
+		helpHeight := lipgloss.Height(m.help.View(ExerciseListHelp{}))
 
 		m.exerciseList.list.SetWidth(scalingFactor * 53)
 		m.exerciseList.list.SetHeight(msg.Height - frameHeight - helpHeight)
@@ -198,33 +197,6 @@ func (m *Model) logEvent(event string) {
 	m.outputConsole.viewport.GotoBottom()
 }
 
-type HelpKeyMap struct{}
-
-func (keymap HelpKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{
-		key.NewBinding(
-			key.WithKeys("k", "up"),
-			key.WithHelp("↑/k", "Select up"),
-		),
-		key.NewBinding(
-			key.WithKeys("j", "down"),
-			key.WithHelp("↓/j", "move down"),
-		),
-		key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "Deploy Exercise"),
-		),
-		key.NewBinding(
-			key.WithKeys("tab"),
-			key.WithHelp("tab", "Focus right"),
-		),
-	}
-}
-
-func (keymap HelpKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{}
-}
-
 func (m Model) View() string {
 	var listRendered, exerciseDescriptionRendered, outputConsoleRendered string
 
@@ -244,7 +216,7 @@ func (m Model) View() string {
 		outputConsoleRendered = styles.focused.Render(m.outputConsole.View())
 	}
 
-	helpRendered := m.help.View(HelpKeyMap{})
+	helpRendered := m.help.View(ExerciseListHelp{})
 
 	horizontal := lipgloss.JoinHorizontal(
 		lipgloss.Top,
