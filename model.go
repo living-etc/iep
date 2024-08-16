@@ -32,13 +32,13 @@ func getStyles() styles {
 }
 
 type Model struct {
-	list                list.Model
+	exerciseList        ExerciseList
 	exerciseDescription viewport.Model
+	outputConsole       viewport.Model
+	help                help.Model
 	focused             string
 	cursor              int
-	outputConsole       viewport.Model
 	outputLog           string
-	help                help.Model
 }
 
 type T struct {
@@ -73,15 +73,15 @@ func NewModel() Model {
 	}
 
 	model := Model{
-		list:                list.New(items, list.NewDefaultDelegate(), 0, 0),
+		exerciseList:        NewExerciseList(items),
 		exerciseDescription: viewport.New(0, 0),
 		outputConsole:       viewport.New(0, 0),
 		help:                help.New(),
 		focused:             "list",
 	}
 
-	model.list.KeyMap.CursorDown.SetEnabled(true)
-	model.list.KeyMap.CursorUp.SetEnabled(true)
+	model.exerciseList.list.KeyMap.CursorDown.SetEnabled(true)
+	model.exerciseList.list.KeyMap.CursorUp.SetEnabled(true)
 
 	model.exerciseDescription.KeyMap.Down.SetEnabled(false)
 	model.exerciseDescription.KeyMap.Up.SetEnabled(false)
@@ -89,10 +89,10 @@ func NewModel() Model {
 	model.outputConsole.KeyMap.Down.SetEnabled(false)
 	model.outputConsole.KeyMap.Up.SetEnabled(false)
 
-	model.list.Title = "Exercises"
-	model.list.SetShowHelp(false)
+	model.exerciseList.list.Title = "Exercises"
+	model.exerciseList.list.SetShowHelp(false)
 
-	selectedItem := model.list.SelectedItem()
+	selectedItem := model.exerciseList.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
@@ -112,9 +112,9 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m *Model) updateSelectedExercise() {
-	m.list.Select(m.cursor)
+	m.exerciseList.list.Select(m.cursor)
 
-	selectedItem := m.list.SelectedItem()
+	selectedItem := m.exerciseList.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
@@ -135,7 +135,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "down", "j":
-			if m.focused == "list" && m.cursor < len(m.list.Items())-1 {
+			if m.focused == "list" && m.cursor < len(m.exerciseList.list.Items())-1 {
 				m.cursor++
 				m.updateSelectedExercise()
 			}
@@ -169,8 +169,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.exerciseDescription.KeyMap.Down.SetEnabled(enableViewport)
 			m.exerciseDescription.KeyMap.Up.SetEnabled(enableViewport)
 
-			m.list.KeyMap.CursorDown.SetEnabled(enableList)
-			m.list.KeyMap.CursorUp.SetEnabled(enableList)
+			m.exerciseList.list.KeyMap.CursorDown.SetEnabled(enableList)
+			m.exerciseList.list.KeyMap.CursorUp.SetEnabled(enableList)
 
 			m.outputConsole.KeyMap.Down.SetEnabled(enableOutputConsole)
 			m.outputConsole.KeyMap.Up.SetEnabled(enableOutputConsole)
@@ -186,8 +186,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		helpHeight := lipgloss.Height(m.help.View(HelpKeyMap{}))
 
-		m.list.SetWidth(scalingFactor * 53)
-		m.list.SetHeight(msg.Height - frameHeight - helpHeight)
+		m.exerciseList.list.SetWidth(scalingFactor * 53)
+		m.exerciseList.list.SetHeight(msg.Height - frameHeight - helpHeight)
 
 		m.exerciseDescription.Width = scalingFactor * 80
 		m.exerciseDescription.Height = msg.Height - frameHeight - helpHeight
@@ -202,7 +202,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.outputConsole, cmd = m.outputConsole.Update(msg)
 	cmds = append(cmds, cmd)
 
-	m.list, cmd = m.list.Update(msg)
+	_, cmd = m.exerciseList.Update(msg)
+	cmds = append(cmds, cmd)
+
 	return m, tea.Batch(cmds...)
 }
 
@@ -245,15 +247,15 @@ func (m Model) View() string {
 	styles := getStyles()
 
 	if m.focused == "list" {
-		listRendered = styles.focused.Render(m.list.View())
+		listRendered = styles.focused.Render(m.exerciseList.list.View())
 		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
 	} else if m.focused == "viewport" {
-		listRendered = styles.unfocused.Render(m.list.View())
+		listRendered = styles.unfocused.Render(m.exerciseList.list.View())
 		exerciseDescriptionRendered = styles.focused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
 	} else {
-		listRendered = styles.unfocused.Render(m.list.View())
+		listRendered = styles.unfocused.Render(m.exerciseList.list.View())
 		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.focused.Render(m.outputConsole.View())
 	}
