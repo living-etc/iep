@@ -15,12 +15,12 @@ func (keymap ExerciseDescriptionHelp) ShortHelp() []key.Binding {
 			key.WithHelp("↓/j", "move down"),
 		),
 		key.NewBinding(
-			key.WithKeys("enter"),
-			key.WithHelp("enter", "Deploy Exercise"),
-		),
-		key.NewBinding(
 			key.WithKeys("tab"),
 			key.WithHelp("tab", "Focus right"),
+		),
+		key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "Deploy Exercise"),
 		),
 	}
 }
