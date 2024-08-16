@@ -22,3 +22,7 @@ func (el ExerciseList) Update(msg tea.Msg) (ExerciseList, tea.Cmd) {
 
 	return el, cmd
 }
+
+func (el ExerciseList) View() string {
+	return el.list.View()
+}

@@ -247,15 +247,15 @@ func (m Model) View() string {
 	styles := getStyles()
 
 	if m.focused == "list" {
-		listRendered = styles.focused.Render(m.exerciseList.list.View())
+		listRendered = styles.focused.Render(m.exerciseList.View())
 		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
 	} else if m.focused == "viewport" {
-		listRendered = styles.unfocused.Render(m.exerciseList.list.View())
+		listRendered = styles.unfocused.Render(m.exerciseList.View())
 		exerciseDescriptionRendered = styles.focused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
 	} else {
-		listRendered = styles.unfocused.Render(m.exerciseList.list.View())
+		listRendered = styles.unfocused.Render(m.exerciseList.View())
 		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.focused.Render(m.outputConsole.View())
 	}
