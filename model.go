@@ -33,7 +33,7 @@ func getStyles() styles {
 
 type Model struct {
 	exerciseList        ExerciseList
-	exerciseDescription viewport.Model
+	exerciseDescription ExerciseDescription
 	outputConsole       viewport.Model
 	help                help.Model
 	focused             string
@@ -74,7 +74,7 @@ func NewModel() Model {
 
 	model := Model{
 		exerciseList:        NewExerciseList(items),
-		exerciseDescription: viewport.New(0, 0),
+		exerciseDescription: NewExerciseDescription(),
 		outputConsole:       viewport.New(0, 0),
 		help:                help.New(),
 		focused:             "list",
@@ -83,8 +83,8 @@ func NewModel() Model {
 	model.exerciseList.list.KeyMap.CursorDown.SetEnabled(true)
 	model.exerciseList.list.KeyMap.CursorUp.SetEnabled(true)
 
-	model.exerciseDescription.KeyMap.Down.SetEnabled(false)
-	model.exerciseDescription.KeyMap.Up.SetEnabled(false)
+	model.exerciseDescription.viewport.KeyMap.Down.SetEnabled(false)
+	model.exerciseDescription.viewport.KeyMap.Up.SetEnabled(false)
 
 	model.outputConsole.KeyMap.Down.SetEnabled(false)
 	model.outputConsole.KeyMap.Up.SetEnabled(false)
@@ -99,7 +99,7 @@ func NewModel() Model {
 	if err != nil {
 		log.Fatal(err)
 	}
-	model.exerciseDescription.SetContent(glamouriseContent)
+	model.exerciseDescription.viewport.SetContent(glamouriseContent)
 
 	model.outputLog = "Output Log"
 	model.outputConsole.SetContent(model.outputLog)
@@ -121,7 +121,7 @@ func (m *Model) updateSelectedExercise() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	m.exerciseDescription.SetContent(glamouriseContent)
+	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -166,8 +166,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				enableOutputConsole = false
 			}
 
-			m.exerciseDescription.KeyMap.Down.SetEnabled(enableViewport)
-			m.exerciseDescription.KeyMap.Up.SetEnabled(enableViewport)
+			m.exerciseDescription.viewport.KeyMap.Down.SetEnabled(enableViewport)
+			m.exerciseDescription.viewport.KeyMap.Up.SetEnabled(enableViewport)
 
 			m.exerciseList.list.KeyMap.CursorDown.SetEnabled(enableList)
 			m.exerciseList.list.KeyMap.CursorUp.SetEnabled(enableList)
@@ -189,8 +189,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.exerciseList.list.SetWidth(scalingFactor * 53)
 		m.exerciseList.list.SetHeight(msg.Height - frameHeight - helpHeight)
 
-		m.exerciseDescription.Width = scalingFactor * 80
-		m.exerciseDescription.Height = msg.Height - frameHeight - helpHeight
+		m.exerciseDescription.viewport.Width = scalingFactor * 80
+		m.exerciseDescription.viewport.Height = msg.Height - frameHeight - helpHeight
 
 		m.outputConsole.Width = scalingFactor * 52
 		m.outputConsole.Height = msg.Height - frameHeight - helpHeight
@@ -202,7 +202,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.outputConsole, cmd = m.outputConsole.Update(msg)
 	cmds = append(cmds, cmd)
 
-	_, cmd = m.exerciseList.Update(msg)
+	m.exerciseList, cmd = m.exerciseList.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
