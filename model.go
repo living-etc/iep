@@ -167,7 +167,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		scalingFactor := msg.Width / 100
 
-		helpHeight := lipgloss.Height(m.help.View(ExerciseListHelp{}))
+		helpHeight := lipgloss.Height(m.help.View(ExerciseDescriptionHelp{}))
 
 		m.exerciseList.list.SetWidth(scalingFactor * 53)
 		m.exerciseList.list.SetHeight(msg.Height - frameHeight - helpHeight)
@@ -198,7 +198,7 @@ func (m *Model) logEvent(event string) {
 }
 
 func (m Model) View() string {
-	var listRendered, exerciseDescriptionRendered, outputConsoleRendered string
+	var listRendered, exerciseDescriptionRendered, outputConsoleRendered, helpRendered string
 
 	styles := getStyles()
 
@@ -206,17 +206,21 @@ func (m Model) View() string {
 		listRendered = styles.focused.Render(m.exerciseList.View())
 		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
+
+		helpRendered = m.help.View(m.exerciseList.Help())
 	} else if m.focused == "viewport" {
 		listRendered = styles.unfocused.Render(m.exerciseList.View())
 		exerciseDescriptionRendered = styles.focused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.unfocused.Render(m.outputConsole.View())
+
+		helpRendered = m.help.View(m.exerciseDescription.Help())
 	} else {
 		listRendered = styles.unfocused.Render(m.exerciseList.View())
 		exerciseDescriptionRendered = styles.unfocused.Render(m.exerciseDescription.View())
 		outputConsoleRendered = styles.focused.Render(m.outputConsole.View())
-	}
 
-	helpRendered := m.help.View(ExerciseListHelp{})
+		helpRendered = m.help.View(m.outputConsole.Help())
+	}
 
 	horizontal := lipgloss.JoinHorizontal(
 		lipgloss.Top,

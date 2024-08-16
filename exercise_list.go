@@ -31,3 +31,7 @@ func (el *ExerciseList) EnableScroll(enable bool) {
 	el.list.KeyMap.CursorDown.SetEnabled(enable)
 	el.list.KeyMap.CursorUp.SetEnabled(enable)
 }
+
+func (el ExerciseList) Help() ExerciseDescriptionHelp {
+	return ExerciseDescriptionHelp{}
+}

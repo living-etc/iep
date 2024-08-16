@@ -27,7 +27,11 @@ func (ed ExerciseDescription) View() string {
 	return ed.viewport.View()
 }
 
-func (el *ExerciseDescription) EnableScroll(enable bool) {
-	el.viewport.KeyMap.Down.SetEnabled(enable)
-	el.viewport.KeyMap.Up.SetEnabled(enable)
+func (ed *ExerciseDescription) EnableScroll(enable bool) {
+	ed.viewport.KeyMap.Down.SetEnabled(enable)
+	ed.viewport.KeyMap.Up.SetEnabled(enable)
+}
+
+func (ed ExerciseDescription) Help() ExerciseDescriptionHelp {
+	return ExerciseDescriptionHelp{}
 }

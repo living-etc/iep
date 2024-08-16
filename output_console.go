@@ -31,3 +31,7 @@ func (el *OutputConsole) EnableScroll(enable bool) {
 	el.viewport.KeyMap.Down.SetEnabled(enable)
 	el.viewport.KeyMap.Up.SetEnabled(enable)
 }
+
+func (ed OutputConsole) Help() OutputConsoleHelp {
+	return OutputConsoleHelp{}
+}
