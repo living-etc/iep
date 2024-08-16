@@ -71,7 +71,7 @@ func NewModel() Model {
 		)
 	}
 
-	model := Model{
+	m := Model{
 		exerciseList:        NewExerciseList(items),
 		exerciseDescription: NewExerciseDescription(),
 		outputConsole:       NewOutputConsole(),
@@ -79,31 +79,31 @@ func NewModel() Model {
 		focused:             "list",
 	}
 
-	model.exerciseList.list.KeyMap.CursorDown.SetEnabled(true)
-	model.exerciseList.list.KeyMap.CursorUp.SetEnabled(true)
+	m.exerciseList.list.KeyMap.CursorDown.SetEnabled(true)
+	m.exerciseList.list.KeyMap.CursorUp.SetEnabled(true)
 
-	model.exerciseDescription.viewport.KeyMap.Down.SetEnabled(false)
-	model.exerciseDescription.viewport.KeyMap.Up.SetEnabled(false)
+	m.exerciseDescription.viewport.KeyMap.Down.SetEnabled(false)
+	m.exerciseDescription.viewport.KeyMap.Up.SetEnabled(false)
 
-	model.outputConsole.viewport.KeyMap.Down.SetEnabled(false)
-	model.outputConsole.viewport.KeyMap.Up.SetEnabled(false)
+	m.outputConsole.viewport.KeyMap.Down.SetEnabled(false)
+	m.outputConsole.viewport.KeyMap.Up.SetEnabled(false)
 
-	model.exerciseList.list.Title = "Exercises"
-	model.exerciseList.list.SetShowHelp(false)
+	m.exerciseList.list.Title = "Exercises"
+	m.exerciseList.list.SetShowHelp(false)
 
-	selectedItem := model.exerciseList.list.SelectedItem()
+	selectedItem := m.exerciseList.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
 	if err != nil {
 		log.Fatal(err)
 	}
-	model.exerciseDescription.viewport.SetContent(glamouriseContent)
+	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 
-	model.outputLog = "Output Log"
-	model.outputConsole.viewport.SetContent(model.outputLog)
+	m.outputLog = "Output Log"
+	m.outputConsole.viewport.SetContent(m.outputLog)
 
-	return model
+	return m
 }
 
 func (m Model) Init() tea.Cmd {
