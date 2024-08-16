@@ -79,14 +79,9 @@ func NewModel() Model {
 		focused:             "list",
 	}
 
-	m.exerciseList.list.KeyMap.CursorDown.SetEnabled(true)
-	m.exerciseList.list.KeyMap.CursorUp.SetEnabled(true)
-
-	m.exerciseDescription.viewport.KeyMap.Down.SetEnabled(false)
-	m.exerciseDescription.viewport.KeyMap.Up.SetEnabled(false)
-
-	m.outputConsole.viewport.KeyMap.Down.SetEnabled(false)
-	m.outputConsole.viewport.KeyMap.Up.SetEnabled(false)
+	m.exerciseList.EnableScroll(true)
+	m.exerciseDescription.EnableScroll(false)
+	m.outputConsole.EnableScroll(false)
 
 	m.exerciseList.list.Title = "Exercises"
 	m.exerciseList.list.SetShowHelp(false)
@@ -144,35 +139,25 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.updateSelectedExercise()
 			}
 		case "tab":
-			var enableList, enableViewport, enableOutputConsole bool
 			if m.focused == "list" {
 				m.focused = "viewport"
 
-				enableList = false
-				enableViewport = true
-				enableOutputConsole = false
+				m.exerciseList.EnableScroll(false)
+				m.exerciseDescription.EnableScroll(true)
+				m.outputConsole.EnableScroll(false)
 			} else if m.focused == "viewport" {
 				m.focused = "output"
 
-				enableList = false
-				enableViewport = false
-				enableOutputConsole = true
+				m.exerciseList.EnableScroll(false)
+				m.exerciseDescription.EnableScroll(false)
+				m.outputConsole.EnableScroll(true)
 			} else {
 				m.focused = "list"
 
-				enableList = true
-				enableViewport = false
-				enableOutputConsole = false
+				m.exerciseList.EnableScroll(true)
+				m.exerciseDescription.EnableScroll(false)
+				m.outputConsole.EnableScroll(false)
 			}
-
-			m.exerciseDescription.viewport.KeyMap.Down.SetEnabled(enableViewport)
-			m.exerciseDescription.viewport.KeyMap.Up.SetEnabled(enableViewport)
-
-			m.exerciseList.list.KeyMap.CursorDown.SetEnabled(enableList)
-			m.exerciseList.list.KeyMap.CursorUp.SetEnabled(enableList)
-
-			m.outputConsole.viewport.KeyMap.Down.SetEnabled(enableOutputConsole)
-			m.outputConsole.viewport.KeyMap.Up.SetEnabled(enableOutputConsole)
 		case "enter":
 			m.logEvent("Enter pressed")
 		}

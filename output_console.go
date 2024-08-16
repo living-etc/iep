@@ -26,3 +26,8 @@ func (oc OutputConsole) Update(msg tea.Msg) (OutputConsole, tea.Cmd) {
 func (oc OutputConsole) View() string {
 	return oc.viewport.View()
 }
+
+func (el *OutputConsole) EnableScroll(enable bool) {
+	el.viewport.KeyMap.Down.SetEnabled(enable)
+	el.viewport.KeyMap.Up.SetEnabled(enable)
+}

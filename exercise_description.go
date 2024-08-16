@@ -26,3 +26,8 @@ func (ed ExerciseDescription) Update(msg tea.Msg) (ExerciseDescription, tea.Cmd)
 func (ed ExerciseDescription) View() string {
 	return ed.viewport.View()
 }
+
+func (el *ExerciseDescription) EnableScroll(enable bool) {
+	el.viewport.KeyMap.Down.SetEnabled(enable)
+	el.viewport.KeyMap.Up.SetEnabled(enable)
+}

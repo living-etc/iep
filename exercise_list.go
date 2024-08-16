@@ -26,3 +26,8 @@ func (el ExerciseList) Update(msg tea.Msg) (ExerciseList, tea.Cmd) {
 func (el ExerciseList) View() string {
 	return el.list.View()
 }
+
+func (el *ExerciseList) EnableScroll(enable bool) {
+	el.list.KeyMap.CursorDown.SetEnabled(enable)
+	el.list.KeyMap.CursorUp.SetEnabled(enable)
+}
