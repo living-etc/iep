@@ -1,12 +1,16 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 type OutputConsole struct {
-	viewport viewport.Model
+	viewport  viewport.Model
+	outputLog string
 }
 
 func NewOutputConsole() OutputConsole {
@@ -34,4 +38,10 @@ func (el *OutputConsole) EnableScroll(enable bool) {
 
 func (ed OutputConsole) Help() OutputConsoleHelp {
 	return OutputConsoleHelp{}
+}
+
+func (od *OutputConsole) LogEvent(event string) {
+	od.outputLog += fmt.Sprintf("[%v] %v\n", time.Now().Format("15:04:05"), event)
+	od.viewport.SetContent(od.outputLog)
+	od.viewport.GotoBottom()
 }

@@ -1,9 +1,7 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"time"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
@@ -36,7 +34,6 @@ type Model struct {
 	help                help.Model
 	focused             string
 	cursor              int
-	outputLog           string
 }
 
 type T struct {
@@ -93,9 +90,6 @@ func NewModel() Model {
 		log.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
-
-	m.outputLog = "Output Log"
-	m.outputConsole.viewport.SetContent(m.outputLog)
 
 	return m
 }
@@ -158,7 +152,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.outputConsole.EnableScroll(false)
 			}
 		case "enter":
-			m.logEvent("Enter pressed")
+			m.outputConsole.LogEvent("Enter pressed")
 		}
 	case tea.WindowSizeMsg:
 		styles := getStyles()
@@ -189,12 +183,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
-}
-
-func (m *Model) logEvent(event string) {
-	m.outputLog += fmt.Sprintf("\n[%v] %v", time.Now().Format("15:04:05"), event)
-	m.outputConsole.viewport.SetContent(m.outputLog)
-	m.outputConsole.viewport.GotoBottom()
 }
 
 func (m Model) View() string {
