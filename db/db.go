@@ -8,6 +8,8 @@ import (
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
+
+	"db/migrations"
 )
 
 const (
@@ -70,8 +72,8 @@ func migrate_up() {
 
 	ctx := context.Background()
 
-	var migration Migration_20240828233901
-	migration.up(ctx, db)
+	var migration migrations.Migration_20240828233901
+	migration.Up(ctx, db)
 }
 
 func migrate_down() {
@@ -80,6 +82,6 @@ func migrate_down() {
 
 	ctx := context.Background()
 
-	var migration Migration_20240828233901
-	migration.down(ctx, db)
+	var migration migrations.Migration_20240828233901
+	migration.Down(ctx, db)
 }

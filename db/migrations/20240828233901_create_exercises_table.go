@@ -1,4 +1,4 @@
-package main
+package migrations
 
 import (
 	"context"
@@ -7,14 +7,9 @@ import (
 	"os"
 )
 
-type Migration interface {
-	up()
-	down()
-}
-
 type Migration_20240828233901 struct{}
 
-func (migration Migration_20240828233901) up(
+func (migration Migration_20240828233901) Up(
 	ctx context.Context,
 	db *sql.DB,
 	args ...any,
@@ -29,7 +24,7 @@ func (migration Migration_20240828233901) up(
 	return res
 }
 
-func (migration Migration_20240828233901) down(
+func (migration Migration_20240828233901) Down(
 	ctx context.Context,
 	db *sql.DB,
 	args ...any,
