@@ -75,25 +75,30 @@ func Migrate() {
 	completed_migration_rows := query(ctx, db, getMigrationIdsSQL)
 	defer completed_migration_rows.Close()
 
-	var completed_migrations []string
+	completed_migrations := []string{}
 	for completed_migration_rows.Next() {
 		var migration string
 
-		if err := completed_migration_rows.Scan(migration); err != nil {
-			fmt.Fprintf(os.Stderr, "%s", err)
+		if err := completed_migration_rows.Scan(&migration); err != nil {
+			fmt.Fprintf(os.Stderr, "Scan err: %s", err)
 			os.Exit(1)
 		}
 
 		completed_migrations = append(completed_migrations, migration)
 	}
 	if err = completed_migration_rows.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
+		fmt.Fprintf(os.Stderr, "Row err: %s", err)
 		os.Exit(1)
 	}
 
-	migrations := Unapplied_migrations(migration_files, completed_migrations)
+	unapplied_migrations := Unapplied_migrations(migration_files, completed_migrations)
 
-	for _, file := range migrations {
+	if len(unapplied_migrations) == 0 {
+		fmt.Fprintf(os.Stdout, "No migrations to run\n")
+		os.Exit(0)
+	}
+
+	for _, file := range unapplied_migrations {
 		statement, err := os.ReadFile(file)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s", err)
@@ -105,11 +110,7 @@ func Migrate() {
 		fmt.Fprintf(os.Stdout, "\t%s\n", migration_id)
 		fmt.Fprintf(os.Stdout, "Finished migrations\n")
 
-		_, err = db.ExecContext(ctx, string(statement))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "failed to execute statement %s: %s", statement, err)
-			os.Exit(1)
-		}
+		exec(ctx, db, string(statement))
 
 		add_migration_id_statement := fmt.Sprintf(addMigrationIdSQL, migration_id)
 		exec(ctx, db, add_migration_id_statement)
@@ -117,7 +118,7 @@ func Migrate() {
 }
 
 func Unapplied_migrations(migration_files []string, completed_migrations []string) []string {
-	var unapplied_migrations []string
+	unapplied_migrations := []string{}
 
 	for _, migration_file := range migration_files {
 		if !migration_completed(

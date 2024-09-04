@@ -25,6 +25,16 @@ func Test_Unapplied_migrations(t *testing.T) {
 			},
 		},
 		{
+			name: "No new migrations",
+			migration_files: []string{
+				"migrations/20240828233901_create_exercises_table.sql",
+			},
+			completed_migrations: []string{
+				"20240828233901_create_exercises_table",
+			},
+			unapplied_migrations_want: []string{},
+		},
+		{
 			name: "Second migration",
 			migration_files: []string{
 				"migrations/20240828233901_create_exercises_table.sql",
