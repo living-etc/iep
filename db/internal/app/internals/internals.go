@@ -66,31 +66,8 @@ func Migrate() {
 
 	ctx := context.Background()
 
-	migration_files, err := filepath.Glob("./migrations/*.sql")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		os.Exit(1)
-	}
-
-	completed_migration_rows := query(ctx, db, getMigrationIdsSQL)
-	defer completed_migration_rows.Close()
-
-	completed_migrations := []string{}
-	for completed_migration_rows.Next() {
-		var migration string
-
-		if err := completed_migration_rows.Scan(&migration); err != nil {
-			fmt.Fprintf(os.Stderr, "Scan err: %s", err)
-			os.Exit(1)
-		}
-
-		completed_migrations = append(completed_migrations, migration)
-	}
-	if err = completed_migration_rows.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Row err: %s", err)
-		os.Exit(1)
-	}
-
+	migration_files := migration_files()
+	completed_migrations := completed_migrations(ctx, db)
 	unapplied_migrations := Unapplied_migrations(migration_files, completed_migrations)
 
 	if len(unapplied_migrations) == 0 {
@@ -115,6 +92,39 @@ func Migrate() {
 		add_migration_id_statement := fmt.Sprintf(addMigrationIdSQL, migration_id)
 		exec(ctx, db, add_migration_id_statement)
 	}
+}
+
+func migration_files() []string {
+	migration_files, err := filepath.Glob("./migrations/*.sql")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		os.Exit(1)
+	}
+
+	return migration_files
+}
+
+func completed_migrations(ctx context.Context, db *sql.DB) []string {
+	completed_migration_rows := query(ctx, db, getMigrationIdsSQL)
+	defer completed_migration_rows.Close()
+
+	completed_migrations := []string{}
+	for completed_migration_rows.Next() {
+		var migration string
+
+		if err := completed_migration_rows.Scan(&migration); err != nil {
+			fmt.Fprintf(os.Stderr, "Scan err: %s", err)
+			os.Exit(1)
+		}
+
+		completed_migrations = append(completed_migrations, migration)
+	}
+	if err := completed_migration_rows.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "Row err: %s", err)
+		os.Exit(1)
+	}
+
+	return completed_migrations
 }
 
 func Unapplied_migrations(migration_files []string, completed_migrations []string) []string {
