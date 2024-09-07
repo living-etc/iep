@@ -1,6 +1,7 @@
 package internals
 
 import (
+	"bufio"
 	"context"
 	"database/sql"
 	"fmt"
@@ -14,6 +15,8 @@ const (
 	addMigrationIdSQL        = "INSERT INTO migrations (id) values ('%s')"
 	getMigrationIdsSQL       = "SELECT * FROM migrations"
 	dbName                   = "file:exercises.db"
+	addExerciseSQL           = "INSERT INTO exercises(id, name, description, body) VALUES(?, ?, ?, ?)"
+	getExerciseByIdSQL       = "SELECT COUNT(id) FROM exercises WHERE id = ? ORDER BY id desc LIMIT 1"
 )
 
 func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Result {
@@ -91,6 +94,57 @@ func Migrate() {
 
 		add_migration_id_statement := fmt.Sprintf(addMigrationIdSQL, migration_id)
 		exec(ctx, db, add_migration_id_statement)
+	}
+}
+
+func MigrateData() {
+	db := openDb()
+	defer db.Close()
+
+	ctx := context.Background()
+
+	fmt.Fprintf(os.Stdout, "Migrating exercise data\n")
+	exercises, err := filepath.Glob("./exercises/*")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		os.Exit(1)
+	}
+
+	for _, exercise := range exercises {
+		id := strings.Split(exercise, "/")[1]
+
+		var exercise_exists bool
+		err := db.QueryRow(getExerciseByIdSQL, id).Scan(&exercise_exists)
+		if exercise_exists {
+			fmt.Fprintf(os.Stdout, "\tExercise exists, skipping - %s\n", id)
+			continue
+		}
+
+		fmt.Fprintf(os.Stdout, "Adding exercise - %s\n", id)
+
+		metadata, err := os.ReadFile(exercise + "/metadata.ini")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s", err)
+			os.Exit(1)
+		}
+
+		var title, description string
+		var body []byte
+
+		scanner := bufio.NewScanner(strings.NewReader(string(metadata)))
+		for scanner.Scan() {
+			kv := strings.SplitN(scanner.Text(), "=", 2)
+			title = kv[0]
+			description = kv[1]
+		}
+
+		body, err = os.ReadFile(exercise + "/content.md")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s", err)
+			os.Exit(1)
+		}
+
+		exec(ctx, db, addExerciseSQL, id, title, description, body)
 	}
 }
 

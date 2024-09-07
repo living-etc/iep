@@ -19,5 +19,7 @@ func main() {
 		internals.Init_db()
 	case "migrate":
 		internals.Migrate()
+	case "migrate_data":
+		internals.MigrateData()
 	}
 }

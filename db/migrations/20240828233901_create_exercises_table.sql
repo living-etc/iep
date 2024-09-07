@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS exercises(
-  id INTEGER NOT NULL,
+  id TEXT NOT NULL,
   name TEXT,
   description TEXT,
   body TEXT,
