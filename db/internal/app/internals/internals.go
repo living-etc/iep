@@ -63,6 +63,14 @@ func Init_db() {
 	exec(ctx, db, createMigrationsTableSQL)
 }
 
+func UnappliedMigrationsNew(
+	ctx context.Context,
+	db DB,
+	migrationFilePaths []string,
+) []Migration {
+	return []Migration{}
+}
+
 func Migrate() {
 	db := openDb()
 	defer db.Close()
@@ -71,7 +79,7 @@ func Migrate() {
 
 	migration_files := migration_files()
 	completed_migrations := completed_migrations(ctx, db)
-	unapplied_migrations := Unapplied_migrations(migration_files, completed_migrations)
+	unapplied_migrations := UnappliedMigrations(migration_files, completed_migrations)
 
 	if len(unapplied_migrations) == 0 {
 		fmt.Fprintf(os.Stdout, "No migrations to run\n")
@@ -181,7 +189,7 @@ func completed_migrations(ctx context.Context, db *sql.DB) []string {
 	return completed_migrations
 }
 
-func Unapplied_migrations(migration_files []string, completed_migrations []string) []string {
+func UnappliedMigrations(migration_files []string, completed_migrations []string) []string {
 	unapplied_migrations := []string{}
 
 	for _, migration_file := range migration_files {
