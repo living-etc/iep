@@ -107,12 +107,11 @@ func TestUnappliedMigrations(t *testing.T) {
 
 	dbName := "file::memory:"
 
+	ctx := context.Background()
+	db := initDb(ctx, dbName)
+	defer db.Close()
+
 	for _, tt := range test_cases {
-		ctx := context.Background()
-
-		db := initDb(ctx, dbName)
-		defer db.Close()
-
 		exec(ctx, db, "DELETE FROM migrations")
 
 		for _, id := range tt.completed_migration_ids {
