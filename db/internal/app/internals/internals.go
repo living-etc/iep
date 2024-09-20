@@ -52,7 +52,7 @@ func openDb() *sql.DB {
 	return db
 }
 
-func Init_db() {
+func InitDb() {
 	db := openDb()
 	defer db.Close()
 

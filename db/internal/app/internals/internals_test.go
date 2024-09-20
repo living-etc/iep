@@ -21,7 +21,7 @@ func openDb(dbName string) *sql.DB {
 	return db
 }
 
-func Init_db(dbName string) {
+func initDb(dbName string) {
 	db := openDb(dbName)
 	defer db.Close()
 
@@ -114,7 +114,7 @@ func TestUnappliedMigrations(t *testing.T) {
 
 	dbName := "file:exercises-test.db"
 
-	Init_db(dbName)
+	initDb(dbName)
 	db := openDb(dbName)
 
 	for _, tt := range test_cases {

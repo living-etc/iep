@@ -39,7 +39,7 @@ func main() {
 
 	switch subcommand {
 	case "init":
-		internals.Init_db()
+		internals.InitDb()
 	case "migrate":
 		unapplied_migrations := internals.UnappliedMigrations(ctx, db, migrationFilePaths())
 
