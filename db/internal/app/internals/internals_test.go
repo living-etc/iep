@@ -11,28 +11,21 @@ import (
 	"db/internal/app/internals"
 )
 
-func openDb(dbName string) *sql.DB {
+func initDb(ctx context.Context, dbName string) *sql.DB {
 	db, err := sql.Open("libsql", dbName)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %s", err)
 		os.Exit(1)
 	}
 
-	return db
-}
-
-func initDb(dbName string) {
-	db := openDb(dbName)
-	defer db.Close()
-
-	ctx := context.Background()
-
-	err := db.PingContext(ctx)
+	err = db.PingContext(ctx)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to ping db: %s", err)
 	}
 
 	exec(ctx, db, "CREATE TABLE IF NOT EXISTS migrations(id TEXT NOT NULL, PRIMARY KEY(id))")
+
+	return db
 }
 
 func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Result {
@@ -112,13 +105,13 @@ func TestUnappliedMigrations(t *testing.T) {
 		},
 	}
 
-	dbName := "file:exercises-test.db"
-
-	initDb(dbName)
-	db := openDb(dbName)
+	dbName := "file::memory:"
 
 	for _, tt := range test_cases {
 		ctx := context.Background()
+
+		db := initDb(ctx, dbName)
+		defer db.Close()
 
 		exec(ctx, db, "DELETE FROM migrations")
 
