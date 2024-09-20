@@ -8,6 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
+	_ "modernc.org/sqlite"
 )
 
 const (
@@ -65,45 +68,59 @@ func Init_db() {
 
 func UnappliedMigrationsNew(
 	ctx context.Context,
-	db DB,
+	db *sql.DB,
 	migrationFilePaths []string,
 ) []Migration {
-	return []Migration{}
-}
+	unapplied_migrations := []Migration{}
 
-func Migrate() {
-	db := openDb()
-	defer db.Close()
-
-	ctx := context.Background()
-
-	migration_files := migration_files()
-	completed_migrations := completed_migrations(ctx, db)
-	unapplied_migrations := UnappliedMigrations(migration_files, completed_migrations)
-
-	if len(unapplied_migrations) == 0 {
-		fmt.Fprintf(os.Stdout, "No migrations to run\n")
-		os.Exit(0)
-	}
-
-	for _, file := range unapplied_migrations {
-		statement, err := os.ReadFile(file)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s", err)
-			os.Exit(1)
+	for _, migrationFilePath := range migrationFilePaths {
+		if !migration_completed(
+			strings.TrimSuffix(filepath.Base(migrationFilePath), filepath.Ext(migrationFilePath)),
+			completed_migrations(ctx, db),
+		) {
+			unapplied_migrations = append(
+				unapplied_migrations,
+				Migration{Filepath: migrationFilePath},
+			)
 		}
-
-		fmt.Fprintf(os.Stdout, "Running migrations...\n")
-		migration_id := strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
-		fmt.Fprintf(os.Stdout, "\t%s\n", migration_id)
-		fmt.Fprintf(os.Stdout, "Finished migrations\n")
-
-		exec(ctx, db, string(statement))
-
-		add_migration_id_statement := fmt.Sprintf(addMigrationIdSQL, migration_id)
-		exec(ctx, db, add_migration_id_statement)
 	}
+
+	return unapplied_migrations
 }
+
+//func Migrate() {
+//	db := openDb()
+//	defer db.Close()
+//
+//	ctx := context.Background()
+//
+//	migration_files := migration_files()
+//	completed_migrations := completed_migrations(ctx, db)
+//	unapplied_migrations := UnappliedMigrations(migration_files, completed_migrations)
+//
+//	if len(unapplied_migrations) == 0 {
+//		fmt.Fprintf(os.Stdout, "No migrations to run\n")
+//		os.Exit(0)
+//	}
+//
+//	for _, file := range unapplied_migrations {
+//		statement, err := os.ReadFile(file)
+//		if err != nil {
+//			fmt.Fprintf(os.Stderr, "%s", err)
+//			os.Exit(1)
+//		}
+//
+//		fmt.Fprintf(os.Stdout, "Running migrations...\n")
+//		migration_id := strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
+//		fmt.Fprintf(os.Stdout, "\t%s\n", migration_id)
+//		fmt.Fprintf(os.Stdout, "Finished migrations\n")
+//
+//		exec(ctx, db, string(statement))
+//
+//		add_migration_id_statement := fmt.Sprintf(addMigrationIdSQL, migration_id)
+//		exec(ctx, db, add_migration_id_statement)
+//	}
+//}
 
 func MigrateData() {
 	db := openDb()
@@ -187,21 +204,6 @@ func completed_migrations(ctx context.Context, db *sql.DB) []string {
 	}
 
 	return completed_migrations
-}
-
-func UnappliedMigrations(migration_files []string, completed_migrations []string) []string {
-	unapplied_migrations := []string{}
-
-	for _, migration_file := range migration_files {
-		if !migration_completed(
-			strings.TrimSuffix(filepath.Base(migration_file), filepath.Ext(migration_file)),
-			completed_migrations,
-		) {
-			unapplied_migrations = append(unapplied_migrations, migration_file)
-		}
-	}
-
-	return unapplied_migrations
 }
 
 func migration_completed(migration_file string, completed_migrations []string) bool {
