@@ -6,5 +6,5 @@ build:
 test:
 	go test ./...
 
-migrate:
+migration:
 	touch "migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.sql"
