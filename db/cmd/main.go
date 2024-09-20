@@ -41,7 +41,14 @@ func main() {
 	case "init":
 		internals.Init_db()
 	case "migrate":
-		for _, migration := range internals.UnappliedMigrationsNew(ctx, db, migrationFilePaths()) {
+		unapplied_migrations := internals.UnappliedMigrations(ctx, db, migrationFilePaths())
+
+		if len(unapplied_migrations) == 0 {
+			fmt.Fprintf(os.Stdout, "No migrations to run\n")
+			os.Exit(0)
+		}
+
+		for _, migration := range unapplied_migrations {
 			migration.Run(ctx, db)
 		}
 	}

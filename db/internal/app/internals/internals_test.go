@@ -11,71 +11,6 @@ import (
 	"db/internal/app/internals"
 )
 
-const (
-	createMigrationsTableSQL = "CREATE TABLE IF NOT EXISTS migrations(id TEXT NOT NULL, PRIMARY KEY(id))"
-)
-
-func TestUnappliedMigrations(t *testing.T) {
-	//	test_cases := []struct {
-	//		name                      string
-	//		migration_files           []string
-	//		completed_migrations      []string
-	//		unapplied_migrations_want []string
-	//	}{
-	//
-	//		{
-	//			name: "Add the first migration",
-	//			migration_files: []string{
-	//				"migrations/20240828233901_create_exercises_table.sql",
-	//			},
-	//			completed_migrations: []string{},
-	//			unapplied_migrations_want: []string{
-	//				"migrations/20240828233901_create_exercises_table.sql",
-	//			},
-	//		},
-	//		{
-	//			name: "No new migrations",
-	//			migration_files: []string{
-	//				"migrations/20240828233901_create_exercises_table.sql",
-	//			},
-	//			completed_migrations: []string{
-	//				"20240828233901_create_exercises_table",
-	//			},
-	//			unapplied_migrations_want: []string{},
-	//		},
-	//		{
-	//			name: "Add the second migration",
-	//			migration_files: []string{
-	//				"migrations/20240828233901_create_exercises_table.sql",
-	//				"migrations/20240829233901_create_more_things.sql",
-	//			},
-	//			completed_migrations: []string{
-	//				"20240828233901_create_exercises_table",
-	//			},
-	//			unapplied_migrations_want: []string{
-	//				"migrations/20240829233901_create_more_things.sql",
-	//			},
-	//		},
-	//		{
-	//			name: "Add the third and fourth migrations",
-	//			migration_files: []string{
-	//				"migrations/20240828233901_create_exercises_table.sql",
-	//				"migrations/20240829233901_create_more_things.sql",
-	//				"migrations/20240830233901_create_more_things_2.sql",
-	//				"migrations/20240831233901_create_more_things_3.sql",
-	//			},
-	//			completed_migrations: []string{
-	//				"20240828233901_create_exercises_table",
-	//				"20240829233901_create_more_things",
-	//			},
-	//			unapplied_migrations_want: []string{
-	//				"migrations/20240830233901_create_more_things_2.sql",
-	//				"migrations/20240831233901_create_more_things_3.sql",
-	//			},
-	//		},
-	//	}
-}
-
 func openDb(dbName string) *sql.DB {
 	db, err := sql.Open("libsql", dbName)
 	if err != nil {
@@ -97,7 +32,7 @@ func Init_db(dbName string) {
 		fmt.Fprintf(os.Stderr, "failed to ping db: %s", err)
 	}
 
-	exec(ctx, db, createMigrationsTableSQL)
+	exec(ctx, db, "CREATE TABLE IF NOT EXISTS migrations(id TEXT NOT NULL, PRIMARY KEY(id))")
 }
 
 func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Result {
@@ -110,11 +45,12 @@ func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Re
 	return res
 }
 
-func TestUnappliedMigrationsNew(t *testing.T) {
+func TestUnappliedMigrations(t *testing.T) {
 	test_cases := []struct {
 		name                      string
 		migration_files           []string
 		unapplied_migrations_want []internals.Migration
+		completed_migration_ids   []string
 	}{
 		{
 			name: "Add the first migration",
@@ -126,17 +62,72 @@ func TestUnappliedMigrationsNew(t *testing.T) {
 					Filepath: "migrations/20240828233901_create_exercises_table.sql",
 				},
 			},
+			completed_migration_ids: []string{},
+		},
+		{
+			name: "No new migrations",
+			migration_files: []string{
+				"migrations/20240828233901_create_exercises_table.sql",
+			},
+			unapplied_migrations_want: []internals.Migration{},
+			completed_migration_ids: []string{
+				"20240828233901_create_exercises_table",
+			},
+		},
+		{
+			name: "Add the second migration",
+			migration_files: []string{
+				"migrations/20240828233901_create_exercises_table.sql",
+				"migrations/20240829233901_create_more_things.sql",
+			},
+			completed_migration_ids: []string{
+				"20240828233901_create_exercises_table",
+			},
+			unapplied_migrations_want: []internals.Migration{
+				{
+					Filepath: "migrations/20240829233901_create_more_things.sql",
+				},
+			},
+		},
+		{
+			name: "Add the third and fourth migrations",
+			migration_files: []string{
+				"migrations/20240828233901_create_exercises_table.sql",
+				"migrations/20240829233901_create_more_things.sql",
+				"migrations/20240830233901_create_more_things_2.sql",
+				"migrations/20240831233901_create_more_things_3.sql",
+			},
+			completed_migration_ids: []string{
+				"20240828233901_create_exercises_table",
+				"20240829233901_create_more_things",
+			},
+			unapplied_migrations_want: []internals.Migration{
+				{
+					Filepath: "migrations/20240830233901_create_more_things_2.sql",
+				},
+				{
+					Filepath: "migrations/20240831233901_create_more_things_3.sql",
+				},
+			},
 		},
 	}
 
-	Init_db("file:exercises-test.db")
-	db := openDb("file:exercises-test.db")
+	dbName := "file:exercises-test.db"
+
+	Init_db(dbName)
+	db := openDb(dbName)
 
 	for _, tt := range test_cases {
 		ctx := context.Background()
 
+		exec(ctx, db, "DELETE FROM migrations")
+
+		for _, id := range tt.completed_migration_ids {
+			exec(ctx, db, "INSERT INTO migrations (id) values (?)", id)
+		}
+
 		t.Run(tt.name, func(t *testing.T) {
-			unapplied_migrations_got := internals.UnappliedMigrationsNew(
+			unapplied_migrations_got := internals.UnappliedMigrations(
 				ctx,
 				db,
 				tt.migration_files,

@@ -66,7 +66,7 @@ func Init_db() {
 	exec(ctx, db, createMigrationsTableSQL)
 }
 
-func UnappliedMigrationsNew(
+func UnappliedMigrations(
 	ctx context.Context,
 	db *sql.DB,
 	migrationFilePaths []string,
@@ -97,11 +97,6 @@ func UnappliedMigrationsNew(
 //	migration_files := migration_files()
 //	completed_migrations := completed_migrations(ctx, db)
 //	unapplied_migrations := UnappliedMigrations(migration_files, completed_migrations)
-//
-//	if len(unapplied_migrations) == 0 {
-//		fmt.Fprintf(os.Stdout, "No migrations to run\n")
-//		os.Exit(0)
-//	}
 //
 //	for _, file := range unapplied_migrations {
 //		statement, err := os.ReadFile(file)
