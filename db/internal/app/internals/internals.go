@@ -1,7 +1,6 @@
 package internals
 
 import (
-	"bufio"
 	"context"
 	"database/sql"
 	"fmt"
@@ -94,10 +93,6 @@ func UnappliedMigrations(
 //
 //	ctx := context.Background()
 //
-//	migration_files := migration_files()
-//	completed_migrations := completed_migrations(ctx, db)
-//	unapplied_migrations := UnappliedMigrations(migration_files, completed_migrations)
-//
 //	for _, file := range unapplied_migrations {
 //		statement, err := os.ReadFile(file)
 //		if err != nil {
@@ -116,67 +111,6 @@ func UnappliedMigrations(
 //		exec(ctx, db, add_migration_id_statement)
 //	}
 //}
-
-func MigrateData() {
-	db := openDb()
-	defer db.Close()
-
-	ctx := context.Background()
-
-	fmt.Fprintf(os.Stdout, "Migrating exercise data\n")
-	exercises, err := filepath.Glob("./exercises/*")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		os.Exit(1)
-	}
-
-	for _, exercise := range exercises {
-		id := strings.Split(exercise, "/")[1]
-
-		var exercise_exists bool
-		err := db.QueryRow(getExerciseByIdSQL, id).Scan(&exercise_exists)
-		if exercise_exists {
-			fmt.Fprintf(os.Stdout, "\tExercise exists, skipping - %s\n", id)
-			continue
-		}
-
-		fmt.Fprintf(os.Stdout, "Adding exercise - %s\n", id)
-
-		metadata, err := os.ReadFile(exercise + "/metadata.ini")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s", err)
-			os.Exit(1)
-		}
-
-		var title, description string
-		var body []byte
-
-		scanner := bufio.NewScanner(strings.NewReader(string(metadata)))
-		for scanner.Scan() {
-			kv := strings.SplitN(scanner.Text(), "=", 2)
-			title = kv[0]
-			description = kv[1]
-		}
-
-		body, err = os.ReadFile(exercise + "/content.md")
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s", err)
-			os.Exit(1)
-		}
-
-		exec(ctx, db, addExerciseSQL, id, title, description, body)
-	}
-}
-
-func migration_files() []string {
-	migration_files, err := filepath.Glob("./migrations/*.sql")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		os.Exit(1)
-	}
-
-	return migration_files
-}
 
 func completed_migrations(ctx context.Context, db *sql.DB) []string {
 	completed_migration_rows := query(ctx, db, getMigrationIdsSQL)
