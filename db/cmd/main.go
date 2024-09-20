@@ -49,7 +49,11 @@ func main() {
 		}
 
 		for _, migration := range unapplied_migrations {
-			migration.Run(ctx, db)
+			err := migration.Run(ctx, db)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%s", err)
+				os.Exit(1)
+			}
 		}
 	}
 }

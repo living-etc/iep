@@ -87,31 +87,6 @@ func UnappliedMigrations(
 	return unapplied_migrations
 }
 
-//func Migrate() {
-//	db := openDb()
-//	defer db.Close()
-//
-//	ctx := context.Background()
-//
-//	for _, file := range unapplied_migrations {
-//		statement, err := os.ReadFile(file)
-//		if err != nil {
-//			fmt.Fprintf(os.Stderr, "%s", err)
-//			os.Exit(1)
-//		}
-//
-//		fmt.Fprintf(os.Stdout, "Running migrations...\n")
-//		migration_id := strings.TrimSuffix(filepath.Base(file), filepath.Ext(file))
-//		fmt.Fprintf(os.Stdout, "\t%s\n", migration_id)
-//		fmt.Fprintf(os.Stdout, "Finished migrations\n")
-//
-//		exec(ctx, db, string(statement))
-//
-//		add_migration_id_statement := fmt.Sprintf(addMigrationIdSQL, migration_id)
-//		exec(ctx, db, add_migration_id_statement)
-//	}
-//}
-
 func completed_migrations(ctx context.Context, db *sql.DB) []string {
 	completed_migration_rows := query(ctx, db, getMigrationIdsSQL)
 	defer completed_migration_rows.Close()
