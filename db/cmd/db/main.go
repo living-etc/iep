@@ -59,7 +59,7 @@ func main() {
 }
 
 func migrationFilePaths() []string {
-	migration_files, err := filepath.Glob("./migrations/*.sql")
+	migration_files, err := filepath.Glob("./migrations/*.go")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%s", err)
 		os.Exit(1)

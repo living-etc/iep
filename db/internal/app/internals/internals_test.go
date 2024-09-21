@@ -48,11 +48,11 @@ func TestUnappliedMigrations(t *testing.T) {
 		{
 			name: "Add the first migration",
 			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.sql",
+				"migrations/20240828233901_create_exercises_table.go",
 			},
 			unapplied_migrations_want: []internals.Migration{
 				{
-					Filepath: "migrations/20240828233901_create_exercises_table.sql",
+					Filepath: "migrations/20240828233901_create_exercises_table.go",
 				},
 			},
 			completed_migration_ids: []string{},
@@ -60,7 +60,7 @@ func TestUnappliedMigrations(t *testing.T) {
 		{
 			name: "No new migrations",
 			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.sql",
+				"migrations/20240828233901_create_exercises_table.go",
 			},
 			unapplied_migrations_want: []internals.Migration{},
 			completed_migration_ids: []string{
@@ -70,25 +70,25 @@ func TestUnappliedMigrations(t *testing.T) {
 		{
 			name: "Add the second migration",
 			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.sql",
-				"migrations/20240829233901_create_more_things.sql",
+				"migrations/20240828233901_create_exercises_table.go",
+				"migrations/20240829233901_create_more_things.go",
 			},
 			completed_migration_ids: []string{
 				"20240828233901_create_exercises_table",
 			},
 			unapplied_migrations_want: []internals.Migration{
 				{
-					Filepath: "migrations/20240829233901_create_more_things.sql",
+					Filepath: "migrations/20240829233901_create_more_things.go",
 				},
 			},
 		},
 		{
 			name: "Add the third and fourth migrations",
 			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.sql",
-				"migrations/20240829233901_create_more_things.sql",
-				"migrations/20240830233901_create_more_things_2.sql",
-				"migrations/20240831233901_create_more_things_3.sql",
+				"migrations/20240828233901_create_exercises_table.go",
+				"migrations/20240829233901_create_more_things.go",
+				"migrations/20240830233901_create_more_things_2.go",
+				"migrations/20240831233901_create_more_things_3.go",
 			},
 			completed_migration_ids: []string{
 				"20240828233901_create_exercises_table",
@@ -96,10 +96,10 @@ func TestUnappliedMigrations(t *testing.T) {
 			},
 			unapplied_migrations_want: []internals.Migration{
 				{
-					Filepath: "migrations/20240830233901_create_more_things_2.sql",
+					Filepath: "migrations/20240830233901_create_more_things_2.go",
 				},
 				{
-					Filepath: "migrations/20240831233901_create_more_things_3.sql",
+					Filepath: "migrations/20240831233901_create_more_things_3.go",
 				},
 			},
 		},
