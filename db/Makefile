@@ -1,7 +1,7 @@
 default: build
 
 build:
-	go build -o bin cmd/main.go
+	go build -o ./bin ./cmd/db
 
 test:
 	go test ./...
