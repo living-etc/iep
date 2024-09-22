@@ -20,12 +20,7 @@ func (m *Migration) Run(
 	fmt.Fprintf(os.Stdout, "\t%s\n", m.Id)
 
 	exec(ctx, db, m.Statement, m.Args...)
-
-	add_migration_id_statement := fmt.Sprintf(
-		"INSERT INTO migrations (id) values ('%s')",
-		m.Id,
-	)
-	exec(ctx, db, add_migration_id_statement)
+	exec(ctx, db, "INSERT INTO migrations (id) values (?)", m.Id)
 
 	return nil
 }
