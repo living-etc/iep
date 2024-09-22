@@ -5,13 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
-
-	"db/internal/migrator"
-	"db/internal/unapplied_migrations"
 )
 
 func InitDb() {
@@ -39,7 +35,7 @@ func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Re
 }
 
 func openDb() *sql.DB {
-	db, err := sql.Open("libsql", "file:exercises.db")
+	db, err := sql.Open("libsql", "file:db/exercises.db")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %s", err)
 		os.Exit(1)
@@ -62,19 +58,16 @@ func main() {
 	case "init":
 		InitDb()
 	case "migrate":
-		unapplied_migrations := unapplied_migrations.Get(
-			ctx,
-			db,
-			migrationFilePaths(),
-		)
+		unapplied_migrations := Get(ctx, db)
 
 		if len(unapplied_migrations) == 0 {
 			fmt.Fprintf(os.Stdout, "No migrations to run\n")
 			os.Exit(0)
 		}
 
-		var migrationRunner migrator.MigrationRunner
+		var migrationRunner MigrationRunner
 
+		fmt.Fprintf(os.Stdout, "Running migrations...\n")
 		for _, migration := range unapplied_migrations {
 			err := migrationRunner.Run(ctx, db, migration)
 			if err != nil {
@@ -82,15 +75,6 @@ func main() {
 				os.Exit(1)
 			}
 		}
+		fmt.Fprintf(os.Stdout, "Finished migrations\n")
 	}
-}
-
-func migrationFilePaths() []string {
-	migration_files, err := filepath.Glob("./migrations/*.go")
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s", err)
-		os.Exit(1)
-	}
-
-	return migration_files
 }

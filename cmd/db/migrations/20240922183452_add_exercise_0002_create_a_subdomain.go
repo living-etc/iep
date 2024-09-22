@@ -1,9 +1,7 @@
 package migrations
 
-import "db/internal/migrator"
-
-func Init_20240922183452_add_exercise_0002_create_a_subdomain() migrator.Migration {
-	return migrator.Migration{
+func Init_20240922183452_add_exercise_0002_create_a_subdomain() Migration {
+	return Migration{
 		Id:        "20240922183452_add_exercise_0002_create_a_subdomain",
 		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
 		Args: []any{

@@ -1,10 +1,12 @@
-package migrator
+package main
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
 	"os"
+
+	"iep/cmd/db/migrations"
 )
 
 type MigrationRunner struct{}
@@ -12,11 +14,9 @@ type MigrationRunner struct{}
 func (r *MigrationRunner) Run(
 	ctx context.Context,
 	db *sql.DB,
-	migration Migration,
+	migration migrations.Migration,
 ) error {
-	fmt.Fprintf(os.Stdout, "Running migrations...\n")
 	fmt.Fprintf(os.Stdout, "\t%s\n", migration.Id)
-	fmt.Fprintf(os.Stdout, "Finished migrations\n")
 
 	exec(ctx, db, migration.Statement, migration.Args...)
 
@@ -27,14 +27,4 @@ func (r *MigrationRunner) Run(
 	exec(ctx, db, add_migration_id_statement)
 
 	return nil
-}
-
-func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Result {
-	res, err := db.ExecContext(ctx, statement, args...)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to execute statement %s: %s", statement, err)
-		os.Exit(1)
-	}
-
-	return res
 }

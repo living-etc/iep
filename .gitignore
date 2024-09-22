@@ -1,4 +1,3 @@
-iep
-log
-*/bin/*
-*.db
+log/*
+bin/*
+db/*

@@ -1,4 +1,4 @@
-package unapplied_migrations_test
+package main
 
 import (
 	"context"
@@ -11,9 +11,8 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
 
-	"db/internal/migrator"
-	"db/internal/unapplied_migrations"
-	"db/test_migrations"
+	"iep/cmd/db/migrations"
+	"iep/cmd/db/test_migrations"
 )
 
 func initDb(ctx context.Context, dbName string) *sql.DB {
@@ -33,29 +32,19 @@ func initDb(ctx context.Context, dbName string) *sql.DB {
 	return db
 }
 
-func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Result {
-	res, err := db.ExecContext(ctx, statement, args...)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to execute statement %s: %s", statement, err)
-		os.Exit(1)
-	}
-
-	return res
-}
-
 func TestGet(t *testing.T) {
 	test_cases := []struct {
-		name                      string
-		migration_files           []string
-		unapplied_migrations_want []migrator.Migration
-		completed_migration_ids   []string
+		name                       string
+		migration_funtion_registry map[string]func() migrations.Migration
+		unapplied_migrations_want  []migrations.Migration
+		completed_migration_ids    []string
 	}{
 		{
 			name: "Add the first migration",
-			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.go",
+			migration_funtion_registry: map[string]func() migrations.Migration{
+				"20240828233901_create_exercises_table": test_migrations.Init_20240828233901_create_exercises_table,
 			},
-			unapplied_migrations_want: []migrator.Migration{
+			unapplied_migrations_want: []migrations.Migration{
 				{
 					Id: "20240828233901_create_exercises_table",
 					Statement: `
@@ -74,24 +63,24 @@ CREATE TABLE IF NOT EXISTS exercises(
 		},
 		{
 			name: "No new migrations",
-			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.go",
+			migration_funtion_registry: map[string]func() migrations.Migration{
+				"20240828233901_create_exercises_table": test_migrations.Init_20240828233901_create_exercises_table,
 			},
-			unapplied_migrations_want: []migrator.Migration{},
 			completed_migration_ids: []string{
 				"20240828233901_create_exercises_table",
 			},
+			unapplied_migrations_want: []migrations.Migration{},
 		},
 		{
 			name: "Add the second migration",
-			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.go",
-				"migrations/20240829233901_add_first_exercise.go",
+			migration_funtion_registry: map[string]func() migrations.Migration{
+				"20240828233901_create_exercises_table": test_migrations.Init_20240828233901_create_exercises_table,
+				"20240829233901_add_first_exercise":     test_migrations.Init_20240829233901_add_first_exercise,
 			},
 			completed_migration_ids: []string{
 				"20240828233901_create_exercises_table",
 			},
-			unapplied_migrations_want: []migrator.Migration{
+			unapplied_migrations_want: []migrations.Migration{
 				{
 					Id:        "20240829233901_add_first_exercise",
 					Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
@@ -132,17 +121,17 @@ The final setup will look like this:
 		},
 		{
 			name: "Add the third and fourth migrations",
-			migration_files: []string{
-				"migrations/20240828233901_create_exercises_table.go",
-				"migrations/20240829233901_add_first_exercise.go",
-				"migrations/20240830233901_modify_first_exercise.go",
-				"migrations/20240831233901_add_second_exercise.go",
+			migration_funtion_registry: map[string]func() migrations.Migration{
+				"20240828233901_create_exercises_table": test_migrations.Init_20240828233901_create_exercises_table,
+				"20240829233901_add_first_exercise":     test_migrations.Init_20240829233901_add_first_exercise,
+				"20240830233901_modify_first_exercise":  test_migrations.Init_20240830233901_modify_first_exercise,
+				"20240831233901_add_second_exercise":    test_migrations.Init_20240831233901_add_second_exercise,
 			},
 			completed_migration_ids: []string{
 				"20240828233901_create_exercises_table",
 				"20240829233901_add_first_exercise",
 			},
-			unapplied_migrations_want: []migrator.Migration{
+			unapplied_migrations_want: []migrations.Migration{
 				{
 					Id:        "20240830233901_modify_first_exercise",
 					Statement: "UPDATE exercises SET description = '?' WHERE exercise_id = '?'",
@@ -173,11 +162,12 @@ In this exercise you will set up a DNS subdomain`,
 	db := initDb(ctx, dbName)
 	defer db.Close()
 
-	originalMigrationFunctionRegistry := unapplied_migrations.MigrationFunctionRegistry
-	defer func() { unapplied_migrations.MigrationFunctionRegistry = originalMigrationFunctionRegistry }()
-	unapplied_migrations.MigrationFunctionRegistry = test_migrations.MigrationFunctionRegistry
+	originalMigrationFunctionRegistry := MigrationFunctionRegistry
+	defer func() { MigrationFunctionRegistry = originalMigrationFunctionRegistry }()
 
 	for _, tt := range test_cases {
+		MigrationFunctionRegistry = tt.migration_funtion_registry
+
 		exec(ctx, db, "DELETE FROM migrations")
 
 		for _, id := range tt.completed_migration_ids {
@@ -185,10 +175,9 @@ In this exercise you will set up a DNS subdomain`,
 		}
 
 		t.Run(tt.name, func(t *testing.T) {
-			unapplied_migrations_got := unapplied_migrations.Get(
+			unapplied_migrations_got := Get(
 				ctx,
 				db,
-				tt.migration_files,
 			)
 
 			if !reflect.DeepEqual(unapplied_migrations_got, tt.unapplied_migrations_want) {

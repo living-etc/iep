@@ -1,14 +1,13 @@
-package unapplied_migrations
+package main
 
 import (
 	"context"
 	"database/sql"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
+	"sort"
 
-	"db/internal/migrator"
+	"iep/cmd/db/migrations"
 )
 
 const (
@@ -18,16 +17,16 @@ const (
 func Get(
 	ctx context.Context,
 	db *sql.DB,
-	migrationFilePaths []string,
-) []migrator.Migration {
-	unapplied_migrations := []migrator.Migration{}
+) []migrations.Migration {
+	unapplied_migrations := []migrations.Migration{}
 
-	for _, migrationFilePath := range migrationFilePaths {
-		migration_id := strings.TrimSuffix(
-			filepath.Base(migrationFilePath),
-			filepath.Ext(migrationFilePath),
-		)
+	migration_ids := []string{}
+	for k := range MigrationFunctionRegistry {
+		migration_ids = append(migration_ids, k)
+	}
+	sort.Strings(migration_ids)
 
+	for _, migration_id := range migration_ids {
 		if !migration_completed(
 			migration_id,
 			completed_migrations(ctx, db),
