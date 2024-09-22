@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"db/migrations"
+	"db/internal/migrator"
 )
 
 const (
@@ -19,8 +19,8 @@ func Get(
 	ctx context.Context,
 	db *sql.DB,
 	migrationFilePaths []string,
-) []migrations.Migration {
-	unapplied_migrations := []migrations.Migration{}
+) []migrator.Migration {
+	unapplied_migrations := []migrator.Migration{}
 
 	for _, migrationFilePath := range migrationFilePaths {
 		migration_id := strings.TrimSuffix(
@@ -34,7 +34,7 @@ func Get(
 		) {
 			unapplied_migrations = append(
 				unapplied_migrations,
-				migrations.MigrationFunctionRegistry[migration_id](),
+				MigrationFunctionRegistry[migration_id](),
 			)
 		}
 	}

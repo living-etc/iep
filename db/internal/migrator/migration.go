@@ -1,4 +1,4 @@
-package migrations
+package migrator
 
 type Migration struct {
 	Id        string

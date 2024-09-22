@@ -11,8 +11,8 @@ import (
 	_ "modernc.org/sqlite"
 
 	"db/internal/app/internals"
+	"db/internal/migrator"
 	"db/internal/unapplied_migrations"
-	"db/migrations"
 )
 
 const (
@@ -54,7 +54,7 @@ func main() {
 			os.Exit(0)
 		}
 
-		var migrationRunner migrations.MigrationRunner
+		var migrationRunner migrator.MigrationRunner
 
 		for _, migration := range unapplied_migrations {
 			err := migrationRunner.Run(ctx, db, migration)

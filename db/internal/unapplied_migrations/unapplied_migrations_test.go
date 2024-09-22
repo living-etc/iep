@@ -11,8 +11,8 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
 
+	"db/internal/migrator"
 	"db/internal/unapplied_migrations"
-	"db/migrations"
 	"db/test_migrations"
 )
 
@@ -47,7 +47,7 @@ func TestGet(t *testing.T) {
 	test_cases := []struct {
 		name                      string
 		migration_files           []string
-		unapplied_migrations_want []migrations.Migration
+		unapplied_migrations_want []migrator.Migration
 		completed_migration_ids   []string
 	}{
 		{
@@ -55,7 +55,7 @@ func TestGet(t *testing.T) {
 			migration_files: []string{
 				"migrations/20240828233901_create_exercises_table.go",
 			},
-			unapplied_migrations_want: []migrations.Migration{
+			unapplied_migrations_want: []migrator.Migration{
 				{
 					Id: "20240828233901_create_exercises_table",
 					Statement: `
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS exercises(
 			migration_files: []string{
 				"migrations/20240828233901_create_exercises_table.go",
 			},
-			unapplied_migrations_want: []migrations.Migration{},
+			unapplied_migrations_want: []migrator.Migration{},
 			completed_migration_ids: []string{
 				"20240828233901_create_exercises_table",
 			},
@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS exercises(
 			completed_migration_ids: []string{
 				"20240828233901_create_exercises_table",
 			},
-			unapplied_migrations_want: []migrations.Migration{
+			unapplied_migrations_want: []migrator.Migration{
 				{
 					Id:        "20240829233901_add_first_exercise",
 					Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
@@ -142,7 +142,7 @@ The final setup will look like this:
 				"20240828233901_create_exercises_table",
 				"20240829233901_add_first_exercise",
 			},
-			unapplied_migrations_want: []migrations.Migration{
+			unapplied_migrations_want: []migrator.Migration{
 				{
 					Id:        "20240830233901_modify_first_exercise",
 					Statement: "UPDATE exercises SET description = '?' WHERE exercise_id = '?'",
@@ -173,9 +173,9 @@ In this exercise you will set up a DNS subdomain`,
 	db := initDb(ctx, dbName)
 	defer db.Close()
 
-	originalMigrationFunctionRegistry := migrations.MigrationFunctionRegistry
-	defer func() { migrations.MigrationFunctionRegistry = originalMigrationFunctionRegistry }()
-	migrations.MigrationFunctionRegistry = test_migrations.MigrationFunctionRegistry
+	originalMigrationFunctionRegistry := unapplied_migrations.MigrationFunctionRegistry
+	defer func() { unapplied_migrations.MigrationFunctionRegistry = originalMigrationFunctionRegistry }()
+	unapplied_migrations.MigrationFunctionRegistry = test_migrations.MigrationFunctionRegistry
 
 	for _, tt := range test_cases {
 		exec(ctx, db, "DELETE FROM migrations")
