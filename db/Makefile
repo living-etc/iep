@@ -7,10 +7,10 @@ test:
 	go test ./...
 
 init:
-	./bin/main init
+	./bin/db init
 
 migrate:
-	./bin/main migrate
+	./bin/db migrate
 
 migration:
 	touch "migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.sql"
