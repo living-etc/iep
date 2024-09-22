@@ -10,17 +10,36 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
 
-	"db/internal/app/internals"
 	"db/internal/migrator"
 	"db/internal/unapplied_migrations"
 )
 
-const (
-	dbName = "file:exercises.db"
-)
+func InitDb() {
+	db := openDb()
+	defer db.Close()
+
+	ctx := context.Background()
+
+	err := db.PingContext(ctx)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to ping db: %s", err)
+	}
+
+	exec(ctx, db, "CREATE TABLE IF NOT EXISTS migrations(id TEXT NOT NULL, PRIMARY KEY(id))")
+}
+
+func exec(ctx context.Context, db *sql.DB, statement string, args ...any) sql.Result {
+	res, err := db.ExecContext(ctx, statement, args...)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to execute statement %s: %s", statement, err)
+		os.Exit(1)
+	}
+
+	return res
+}
 
 func openDb() *sql.DB {
-	db, err := sql.Open("libsql", dbName)
+	db, err := sql.Open("libsql", "file:exercises.db")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %s", err)
 		os.Exit(1)
@@ -41,7 +60,7 @@ func main() {
 
 	switch subcommand {
 	case "init":
-		internals.InitDb()
+		InitDb()
 	case "migrate":
 		unapplied_migrations := unapplied_migrations.Get(
 			ctx,
