@@ -13,4 +13,4 @@ migrate:
 	./bin/db migrate
 
 migration:
-	touch "migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.sql"
+	touch "migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.go"
