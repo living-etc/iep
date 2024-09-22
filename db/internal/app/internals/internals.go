@@ -5,8 +5,6 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
-	"path/filepath"
-	"strings"
 
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
@@ -63,59 +61,4 @@ func InitDb() {
 	}
 
 	exec(ctx, db, createMigrationsTableSQL)
-}
-
-func UnappliedMigrations(
-	ctx context.Context,
-	db *sql.DB,
-	migrationFilePaths []string,
-) []Migration {
-	unapplied_migrations := []Migration{}
-
-	for _, migrationFilePath := range migrationFilePaths {
-		if !migration_completed(
-			strings.TrimSuffix(filepath.Base(migrationFilePath), filepath.Ext(migrationFilePath)),
-			completed_migrations(ctx, db),
-		) {
-			unapplied_migrations = append(
-				unapplied_migrations,
-				Migration{Filepath: migrationFilePath},
-			)
-		}
-	}
-
-	return unapplied_migrations
-}
-
-func completed_migrations(ctx context.Context, db *sql.DB) []string {
-	completed_migration_rows := query(ctx, db, getMigrationIdsSQL)
-	defer completed_migration_rows.Close()
-
-	completed_migrations := []string{}
-	for completed_migration_rows.Next() {
-		var migration string
-
-		if err := completed_migration_rows.Scan(&migration); err != nil {
-			fmt.Fprintf(os.Stderr, "Scan err: %s", err)
-			os.Exit(1)
-		}
-
-		completed_migrations = append(completed_migrations, migration)
-	}
-	if err := completed_migration_rows.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "Row err: %s", err)
-		os.Exit(1)
-	}
-
-	return completed_migrations
-}
-
-func migration_completed(migration_file string, completed_migrations []string) bool {
-	for _, completed_migration := range completed_migrations {
-		if completed_migration == migration_file {
-			return true
-		}
-	}
-
-	return false
 }

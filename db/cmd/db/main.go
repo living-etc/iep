@@ -11,6 +11,8 @@ import (
 	_ "modernc.org/sqlite"
 
 	"db/internal/app/internals"
+	"db/internal/unapplied_migrations"
+	"db/migrations"
 )
 
 const (
@@ -41,15 +43,21 @@ func main() {
 	case "init":
 		internals.InitDb()
 	case "migrate":
-		unapplied_migrations := internals.UnappliedMigrations(ctx, db, migrationFilePaths())
+		unapplied_migrations := unapplied_migrations.Get(
+			ctx,
+			db,
+			migrationFilePaths(),
+		)
 
 		if len(unapplied_migrations) == 0 {
 			fmt.Fprintf(os.Stdout, "No migrations to run\n")
 			os.Exit(0)
 		}
 
+		var migrationRunner migrations.MigrationRunner
+
 		for _, migration := range unapplied_migrations {
-			err := migration.Run(ctx, db)
+			err := migrationRunner.Run(ctx, db, migration)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				os.Exit(1)
