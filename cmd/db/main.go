@@ -65,11 +65,9 @@ func main() {
 			os.Exit(0)
 		}
 
-		var migrationRunner MigrationRunner
-
 		fmt.Fprintf(os.Stdout, "Running migrations...\n")
 		for _, migration := range unapplied_migrations {
-			err := migrationRunner.Run(ctx, db, migration)
+			err := migration.Run(ctx, db)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s", err)
 				os.Exit(1)
