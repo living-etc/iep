@@ -18,7 +18,7 @@ func (r *MigrationRunner) Run(
 	fmt.Fprintf(os.Stdout, "\t%s\n", migration.Id)
 	fmt.Fprintf(os.Stdout, "Finished migrations\n")
 
-	exec(ctx, db, string(migration.Statement))
+	exec(ctx, db, migration.Statement, migration.Args...)
 
 	add_migration_id_statement := fmt.Sprintf(
 		"INSERT INTO migrations (id) values ('%s')",
