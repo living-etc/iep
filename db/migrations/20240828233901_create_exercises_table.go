@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS exercises(
   exercise_id TEXT NOT NULL,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
-  body TEXT NOT NULL,
+  body TEXT NOT NULL
 )
     `,
 		Args: []any{},
