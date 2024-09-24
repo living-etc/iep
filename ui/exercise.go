@@ -1,4 +1,4 @@
-package main
+package ui
 
 type Exercise struct {
 	title, description, content string

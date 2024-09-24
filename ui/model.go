@@ -1,4 +1,4 @@
-package main
+package ui
 
 import (
 	"os"
@@ -44,20 +44,20 @@ type T struct {
 func NewModel() Model {
 	files, err := os.ReadDir("./exercises/")
 	if err != nil {
-		logger.Fatal(err)
+		Logger.Fatal(err)
 	}
 
 	var items []list.Item
 	for _, file := range files {
 		exercise, err := os.ReadFile("exercises/" + file.Name())
 		if err != nil {
-			logger.Fatal(err)
+			Logger.Fatal(err)
 		}
 
 		var t T
 		err = yaml.Unmarshal([]byte(exercise), &t)
 		if err != nil {
-			logger.Debug(err)
+			Logger.Debug(err)
 		}
 
 		items = append(
@@ -86,7 +86,7 @@ func NewModel() Model {
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
 	if err != nil {
-		logger.Fatal(err)
+		Logger.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 
@@ -105,7 +105,7 @@ func (m *Model) updateSelectedExercise() {
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
 	if err != nil {
-		logger.Fatal(err)
+		Logger.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 }

@@ -1,10 +1,10 @@
-package main
+package ui
 
 import "github.com/charmbracelet/bubbles/key"
 
-type OutputConsoleHelp struct{}
+type ExerciseListHelp struct{}
 
-func (keymap OutputConsoleHelp) ShortHelp() []key.Binding {
+func (keymap ExerciseListHelp) ShortHelp() []key.Binding {
 	return []key.Binding{
 		key.NewBinding(
 			key.WithKeys("k", "up"),
@@ -19,12 +19,12 @@ func (keymap OutputConsoleHelp) ShortHelp() []key.Binding {
 			key.WithHelp("tab", "Focus right"),
 		),
 		key.NewBinding(
-			key.WithKeys("/"),
-			key.WithHelp("/", "Search"),
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "Deploy Exercise"),
 		),
 	}
 }
 
-func (keymap OutputConsoleHelp) FullHelp() [][]key.Binding {
+func (keymap ExerciseListHelp) FullHelp() [][]key.Binding {
 	return [][]key.Binding{}
 }

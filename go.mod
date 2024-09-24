@@ -1,4 +1,4 @@
-module iep
+module github.com/living-etc/iep
 
 go 1.22.1
 

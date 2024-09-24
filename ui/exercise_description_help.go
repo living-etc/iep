@@ -1,10 +1,10 @@
-package main
+package ui
 
 import "github.com/charmbracelet/bubbles/key"
 
-type ExerciseListHelp struct{}
+type ExerciseDescriptionHelp struct{}
 
-func (keymap ExerciseListHelp) ShortHelp() []key.Binding {
+func (keymap ExerciseDescriptionHelp) ShortHelp() []key.Binding {
 	return []key.Binding{
 		key.NewBinding(
 			key.WithKeys("k", "up"),
@@ -25,6 +25,6 @@ func (keymap ExerciseListHelp) ShortHelp() []key.Binding {
 	}
 }
 
-func (keymap ExerciseListHelp) FullHelp() [][]key.Binding {
+func (keymap ExerciseDescriptionHelp) FullHelp() [][]key.Binding {
 	return [][]key.Binding{}
 }

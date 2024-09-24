@@ -6,18 +6,15 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/log"
-)
 
-var (
-	logfile, _ = os.OpenFile("./log/iep", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
-	logger     = log.New(logfile)
+	ui "github.com/living-etc/iep/ui"
 )
 
 func main() {
-	logger.SetLevel(log.DebugLevel)
+	ui.Logger.SetLevel(log.DebugLevel)
 
 	if _, err := tea.NewProgram(
-		NewModel(),
+		ui.NewModel(),
 		tea.WithAltScreen(),
 	).Run(); err != nil {
 		fmt.Println("Error running program:", err)

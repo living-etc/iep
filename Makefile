@@ -1,9 +1,12 @@
 .PHONY: db
 
-default: build
+default: iep
 
 test:
 	go test ./...
+
+iep:
+	go build -o ./bin ./cmd/iep
 
 db:
 	go build -o ./bin ./cmd/db
