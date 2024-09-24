@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	logfile, _ = os.OpenFile("log", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
+	logfile, _ = os.OpenFile("./log/iep", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	logger     = log.New(logfile)
 )
 

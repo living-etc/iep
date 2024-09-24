@@ -8,7 +8,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/log"
 	"gopkg.in/yaml.v3"
 )
 
@@ -45,14 +44,14 @@ type T struct {
 func NewModel() Model {
 	files, err := os.ReadDir("./exercises/")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 
 	var items []list.Item
 	for _, file := range files {
 		exercise, err := os.ReadFile("exercises/" + file.Name())
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatal(err)
 		}
 
 		var t T
@@ -87,7 +86,7 @@ func NewModel() Model {
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 
@@ -106,7 +105,7 @@ func (m *Model) updateSelectedExercise() {
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 }
