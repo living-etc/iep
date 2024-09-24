@@ -1,16 +1,18 @@
-default: build
+.PHONY: db
 
-build:
-	go build -o ./bin ./cmd/db
+default: build
 
 test:
 	go test ./...
 
-init:
+db:
+	go build -o ./bin ./cmd/db
+
+db-init:
 	./bin/db init
 
-migrate:
+db-migrate:
 	./bin/db migrate
 
-migration:
+db-migration:
 	touch "migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.go"
