@@ -18,4 +18,4 @@ db-migrate:
 	./bin/db migrate
 
 db-migration:
-	touch "migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.go"
+	touch "cmd/db/migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.go"
