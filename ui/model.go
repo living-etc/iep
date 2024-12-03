@@ -1,6 +1,9 @@
 package ui
 
 import (
+	"context"
+	"database/sql"
+	"fmt"
 	"os"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -8,7 +11,12 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
-	"gopkg.in/yaml.v3"
+	_ "github.com/tursodatabase/libsql-client-go/libsql"
+	_ "modernc.org/sqlite"
+)
+
+const (
+	getAllExercisesQuery = "SELECT * FROM exercises;"
 )
 
 type styles struct {
@@ -24,6 +32,16 @@ func getStyles() styles {
 			BorderForeground(lipgloss.Color("63")).
 			Border(lipgloss.RoundedBorder()),
 	}
+}
+
+func openDb() *sql.DB {
+	db, err := sql.Open("libsql", "file:db/exercises.db")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to open db: %s", err)
+		os.Exit(1)
+	}
+
+	return db
 }
 
 type Model struct {
@@ -42,28 +60,26 @@ type T struct {
 }
 
 func NewModel() Model {
-	files, err := os.ReadDir("./exercises/")
+	ctx := context.Background()
+
+	db := openDb()
+	defer db.Close()
+
+	rows, err := db.QueryContext(ctx, getAllExercisesQuery)
 	if err != nil {
 		Logger.Fatal(err)
 	}
+	defer rows.Close()
 
 	var items []list.Item
-	for _, file := range files {
-		exercise, err := os.ReadFile("exercises/" + file.Name())
-		if err != nil {
+	for rows.Next() {
+		var e Exercise
+		var ignoreInt int
+		var ignoreString string
+		if err := rows.Scan(&ignoreInt, &ignoreString, &e.title, &e.description, &e.content); err != nil {
 			Logger.Fatal(err)
 		}
-
-		var t T
-		err = yaml.Unmarshal([]byte(exercise), &t)
-		if err != nil {
-			Logger.Debug(err)
-		}
-
-		items = append(
-			items,
-			Exercise{title: t.Title, description: t.Description, content: t.Content},
-		)
+		items = append(items, e)
 	}
 
 	m := Model{
