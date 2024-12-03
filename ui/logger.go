@@ -1,12 +1,15 @@
 package ui
 
 import (
-	"os"
+	"io"
 
 	"github.com/charmbracelet/log"
 )
 
-var (
-	logfile, _ = os.OpenFile("./log/iep", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
-	Logger     = log.New(logfile)
-)
+func NewLogger(logLevel log.Level, writer io.Writer) *log.Logger {
+	return log.NewWithOptions(writer, log.Options{
+		Level:           logLevel,
+		ReportTimestamp: true,
+		ReportCaller:    true,
+	})
+}

@@ -1,9 +1,11 @@
 package ui
 
 import (
+	"bytes"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/exp/teatest"
 )
 
@@ -30,7 +32,9 @@ func TestNewModel(t *testing.T) {
 		},
 	}
 
-	testModel := teatest.NewTestModel(t, NewModel())
+	var buf bytes.Buffer
+	logger := NewLogger(log.DebugLevel, &buf)
+	testModel := teatest.NewTestModel(t, NewModel(logger))
 
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {

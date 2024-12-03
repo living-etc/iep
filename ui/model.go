@@ -11,6 +11,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/glamour"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
 )
@@ -51,6 +52,7 @@ type Model struct {
 	help                help.Model
 	focused             string
 	cursor              int
+	logger              *log.Logger
 }
 
 type T struct {
@@ -59,7 +61,7 @@ type T struct {
 	Content     string
 }
 
-func NewModel() Model {
+func NewModel(logger *log.Logger) Model {
 	ctx := context.Background()
 
 	db := openDb()
@@ -67,7 +69,7 @@ func NewModel() Model {
 
 	rows, err := db.QueryContext(ctx, getAllExercisesQuery)
 	if err != nil {
-		Logger.Fatal(err)
+		logger.Fatal(err)
 	}
 	defer rows.Close()
 
@@ -77,7 +79,7 @@ func NewModel() Model {
 		var ignoreInt int
 		var ignoreString string
 		if err := rows.Scan(&ignoreInt, &ignoreString, &e.title, &e.description, &e.content); err != nil {
-			Logger.Fatal(err)
+			logger.Fatal(err)
 		}
 		items = append(items, e)
 	}
@@ -88,6 +90,7 @@ func NewModel() Model {
 		outputConsole:       NewOutputConsole(),
 		help:                help.New(),
 		focused:             "list",
+		logger:              logger,
 	}
 
 	m.exerciseList.EnableScroll(true)
@@ -102,7 +105,7 @@ func NewModel() Model {
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
 	if err != nil {
-		Logger.Fatal(err)
+		logger.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 
@@ -121,7 +124,7 @@ func (m *Model) updateSelectedExercise() {
 
 	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
 	if err != nil {
-		Logger.Fatal(err)
+		m.logger.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
 }
