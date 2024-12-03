@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"sort"
 
-	"iep/cmd/db/migrations"
+	"github.com/living-etc/iep/cmd/db/migrations"
 )
 
 const (
