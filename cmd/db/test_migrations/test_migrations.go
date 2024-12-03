@@ -1,7 +1,7 @@
 package test_migrations
 
 import (
-	"iep/cmd/db/migrations"
+	"github.com/living-etc/iep/cmd/db/migrations"
 )
 
 func Init_20240828233901_create_exercises_table() migrations.Migration {

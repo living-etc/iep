@@ -11,8 +11,8 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
 
-	"iep/cmd/db/migrations"
-	"iep/cmd/db/test_migrations"
+	"github.com/living-etc/iep/cmd/db/migrations"
+	"github.com/living-etc/iep/cmd/db/test_migrations"
 )
 
 func initDb(ctx context.Context, dbName string) *sql.DB {
