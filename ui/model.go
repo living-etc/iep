@@ -35,8 +35,8 @@ func getStyles() styles {
 	}
 }
 
-func openDb() *sql.DB {
-	db, err := sql.Open("libsql", "file:db/exercises.db")
+func openDb(filename string) *sql.DB {
+	db, err := sql.Open("libsql", "file:"+filename)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to open db: %s", err)
 		os.Exit(1)
@@ -61,10 +61,10 @@ type T struct {
 	Content     string
 }
 
-func NewModel(logger *log.Logger) Model {
+func NewModel(config Config, logger *log.Logger) Model {
 	ctx := context.Background()
 
-	db := openDb()
+	db := openDb(config.ExerciseDatabase)
 	defer db.Close()
 
 	rows, err := db.QueryContext(ctx, getAllExercisesQuery)

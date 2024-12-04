@@ -32,9 +32,13 @@ func TestNewModel(t *testing.T) {
 		},
 	}
 
+	config := Config{
+		ExerciseDatabase: ":memory:",
+	}
+
 	var buf bytes.Buffer
 	logger := NewLogger(log.DebugLevel, &buf)
-	testModel := teatest.NewTestModel(t, NewModel(logger))
+	testModel := teatest.NewTestModel(t, NewModel(config, logger))
 
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {
