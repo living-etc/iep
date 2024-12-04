@@ -55,12 +55,6 @@ type Model struct {
 	logger              *log.Logger
 }
 
-type T struct {
-	Title       string
-	Description string
-	Content     string
-}
-
 func NewModel(config Config, logger *log.Logger) Model {
 	ctx := context.Background()
 
