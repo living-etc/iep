@@ -1,7 +1,7 @@
 package ui
 
 import (
-	"bytes"
+	"os"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"

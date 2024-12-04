@@ -1,6 +1,7 @@
 package ui_test
 
 import (
+	"os"
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
@@ -10,10 +11,12 @@ import (
 
 func TestFromToml(t *testing.T) {
 	configWant := ui.Config{
-		ExerciseDatabase: "/home/devops/.config/db/iep/exercises.db",
+		ExerciseDatabase: "/home/devops/.local/state/iep/db/exercises.db",
+		LogFile:          "/home/devops/.local/state/iep/log/iep.log",
 	}
 
-	t.Setenv("XDG_CONFIG_HOME", "/home/devops/.config")
+	t.Setenv("HOME", "/home/devops")
+	t.Setenv("XDG_STATE_HOME", os.Getenv("HOME")+"/.local/state")
 
 	config := ui.NewConfig()
 
