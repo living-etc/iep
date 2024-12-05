@@ -1,7 +1,7 @@
-package main
+package db
 
 import (
-	"github.com/living-etc/iep/cmd/db/migrations"
+	"github.com/living-etc/iep/db/migrations"
 )
 
 var MigrationFunctionRegistry = migrationFunctionRegistry()

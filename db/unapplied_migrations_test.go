@@ -1,36 +1,20 @@
-package main
+package db_test
 
 import (
 	"context"
-	"database/sql"
-	"fmt"
 	"os"
 	"reflect"
 	"testing"
 
+	"github.com/charmbracelet/log"
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
 
-	"github.com/living-etc/iep/cmd/db/migrations"
-	"github.com/living-etc/iep/cmd/db/test_migrations"
+	"github.com/living-etc/iep/db"
+	"github.com/living-etc/iep/db/migrations"
+	"github.com/living-etc/iep/db/test_migrations"
+	"github.com/living-etc/iep/ui"
 )
-
-func initDb(ctx context.Context, dbName string) *sql.DB {
-	db, err := sql.Open("libsql", dbName)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to open db: %s", err)
-		os.Exit(1)
-	}
-
-	err = db.PingContext(ctx)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to ping db: %s", err)
-	}
-
-	exec(ctx, db, "CREATE TABLE IF NOT EXISTS migrations(id TEXT NOT NULL, PRIMARY KEY(id))")
-
-	return db
-}
 
 func TestGet(t *testing.T) {
 	test_cases := []struct {
@@ -158,26 +142,40 @@ In this exercise you will set up a DNS subdomain`,
 
 	dbName := "file::memory:"
 
-	ctx := context.Background()
-	db := initDb(ctx, dbName)
-	defer db.Close()
+	config := ui.Config{
+		ExerciseDatabase: ":memory:",
+		LogFile:          "/Users/chris/Code/personal/infrastructure-exercism-prototype/log/test.log",
+	}
 
-	originalMigrationFunctionRegistry := MigrationFunctionRegistry
-	defer func() { MigrationFunctionRegistry = originalMigrationFunctionRegistry }()
+	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
+	if err != nil {
+		panic(err)
+	}
+	logger := ui.NewLogger(log.DebugLevel, logfile)
+
+	ctx := context.Background()
+	conn, err := db.InitDb(ctx, dbName)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer conn.Close()
+
+	originalMigrationFunctionRegistry := db.MigrationFunctionRegistry
+	defer func() { db.MigrationFunctionRegistry = originalMigrationFunctionRegistry }()
 
 	for _, tt := range test_cases {
-		MigrationFunctionRegistry = tt.migration_funtion_registry
+		db.MigrationFunctionRegistry = tt.migration_funtion_registry
 
-		exec(ctx, db, "DELETE FROM migrations")
+		db.Exec(ctx, conn, "DELETE FROM migrations")
 
 		for _, id := range tt.completed_migration_ids {
-			exec(ctx, db, "INSERT INTO migrations (id) values (?)", id)
+			db.Exec(ctx, conn, "INSERT INTO migrations (id) values (?)", id)
 		}
 
 		t.Run(tt.name, func(t *testing.T) {
-			unapplied_migrations_got := Get(
+			unapplied_migrations_got := db.Get(
 				ctx,
-				db,
+				conn,
 			)
 
 			if !reflect.DeepEqual(unapplied_migrations_got, tt.unapplied_migrations_want) {

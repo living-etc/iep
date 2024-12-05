@@ -1,11 +1,11 @@
-package main
+package db
 
 import (
 	"context"
 	"database/sql"
 	"sort"
 
-	"github.com/living-etc/iep/cmd/db/migrations"
+	"github.com/living-etc/iep/db/migrations"
 )
 
 const (
