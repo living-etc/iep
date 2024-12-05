@@ -140,8 +140,6 @@ In this exercise you will set up a DNS subdomain`,
 		},
 	}
 
-	dbName := "file::memory:"
-
 	config := ui.Config{
 		ExerciseDatabase: ":memory:",
 		LogFile:          "/Users/chris/Code/personal/infrastructure-exercism-prototype/log/test.log",
@@ -154,7 +152,7 @@ In this exercise you will set up a DNS subdomain`,
 	logger := ui.NewLogger(log.DebugLevel, logfile)
 
 	ctx := context.Background()
-	conn, err := db.InitDb(ctx, dbName)
+	conn, err := db.InitDb(ctx, config.ExerciseDatabase)
 	if err != nil {
 		logger.Fatal(err)
 	}
