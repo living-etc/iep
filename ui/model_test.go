@@ -34,10 +34,14 @@ func TestNewModel(t *testing.T) {
 
 	config := Config{
 		ExerciseDatabase: ":memory:",
+		LogFile:          "/Users/chris/Code/personal/infrastructure-exercism-prototype/log/test.log",
 	}
 
-	var buf bytes.Buffer
-	logger := NewLogger(log.DebugLevel, &buf)
+	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
+	if err != nil {
+		panic(err)
+	}
+	logger := NewLogger(log.DebugLevel, logfile)
 	testModel := teatest.NewTestModel(t, NewModel(config, logger))
 
 	for _, testcase := range testcases {
