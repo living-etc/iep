@@ -25,8 +25,6 @@ func (m *Migration) Run(
 	db *sql.DB,
 	logger *log.Logger,
 ) error {
-	fmt.Fprintf(os.Stdout, "\t%s\n", m.Id)
-
 	exec(ctx, db, m.Statement, m.Args...)
 	exec(ctx, db, "INSERT INTO migrations (id) values (?)", m.Id)
 
