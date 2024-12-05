@@ -3,8 +3,6 @@ package ui
 import (
 	"context"
 	"database/sql"
-	"fmt"
-	"os"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
@@ -35,16 +33,6 @@ func getStyles() styles {
 	}
 }
 
-func openDb(filename string) *sql.DB {
-	db, err := sql.Open("libsql", "file:"+filename)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to open db: %s", err)
-		os.Exit(1)
-	}
-
-	return db
-}
-
 type Model struct {
 	exerciseList        ExerciseList
 	exerciseDescription ExerciseDescription
@@ -55,13 +43,10 @@ type Model struct {
 	logger              *log.Logger
 }
 
-func NewModel(config Config, logger *log.Logger) Model {
+func NewModel(config Config, logger *log.Logger, conn *sql.DB) Model {
 	ctx := context.Background()
 
-	db := openDb(config.ExerciseDatabase)
-	defer db.Close()
-
-	rows, err := db.QueryContext(ctx, getAllExercisesQuery)
+	rows, err := conn.QueryContext(ctx, getAllExercisesQuery)
 	if err != nil {
 		logger.Fatal(err)
 	}

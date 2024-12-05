@@ -5,6 +5,13 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+
+	"github.com/charmbracelet/log"
+)
+
+const (
+	// TODO remove this hard coded file path
+	MARKDOWN_PATH = "/Users/chris/Code/personal/infrastructure-exercism-prototype/db/migrations/markdown"
 )
 
 type Migration struct {
@@ -16,6 +23,7 @@ type Migration struct {
 func (m *Migration) Run(
 	ctx context.Context,
 	db *sql.DB,
+	logger *log.Logger,
 ) error {
 	fmt.Fprintf(os.Stdout, "\t%s\n", m.Id)
 

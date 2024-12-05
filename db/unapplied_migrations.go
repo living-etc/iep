@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"sort"
 
+	"github.com/charmbracelet/log"
+
 	"github.com/living-etc/iep/db/migrations"
 )
 
@@ -15,6 +17,7 @@ const (
 func Get(
 	ctx context.Context,
 	db *sql.DB,
+	logger *log.Logger,
 ) []migrations.Migration {
 	unapplied_migrations := []migrations.Migration{}
 

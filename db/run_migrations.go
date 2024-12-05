@@ -39,16 +39,11 @@ func Exec(ctx context.Context, conn *sql.DB, statement string, args ...any) sql.
 	return res
 }
 
-func RunMigrations(config ui.Config, logger *log.Logger) error {
+func RunMigrations(config ui.Config, logger *log.Logger, conn *sql.DB) error {
 	ctx := context.Background()
 
-	conn, err := InitDb(ctx, config.ExerciseDatabase)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-
-	unapplied_migrations := Get(ctx, conn)
+	unapplied_migrations := Get(ctx, conn, logger)
+	logger.Debug("found the following unapplied migrations:", unapplied_migrations)
 
 	if len(unapplied_migrations) == 0 {
 		logger.Print("No migrations to run")
@@ -57,7 +52,8 @@ func RunMigrations(config ui.Config, logger *log.Logger) error {
 
 	logger.Print("Running migrations...")
 	for _, migration := range unapplied_migrations {
-		err := migration.Run(ctx, conn)
+		logger.Debug("applying migration ", migration.Id)
+		err := migration.Run(ctx, conn, logger)
 		if err != nil {
 			return err
 		}

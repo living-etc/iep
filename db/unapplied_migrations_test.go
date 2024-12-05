@@ -176,6 +176,7 @@ In this exercise you will set up a DNS subdomain`,
 			unapplied_migrations_got := db.Get(
 				ctx,
 				conn,
+				logger,
 			)
 
 			if !reflect.DeepEqual(unapplied_migrations_got, tt.unapplied_migrations_want) {

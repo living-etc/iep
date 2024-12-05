@@ -1,6 +1,7 @@
 package ui_test
 
 import (
+	"context"
 	"os"
 	"testing"
 
@@ -46,9 +47,15 @@ func TestNewModel(t *testing.T) {
 	}
 	logger := ui.NewLogger(log.DebugLevel, logfile)
 
-	db.RunMigrations(config, logger)
+	ctx := context.Background()
+	conn, err := db.InitDb(ctx, config.ExerciseDatabase)
+	if err != nil {
+		logger.Fatal(err)
+	}
+	defer conn.Close()
+	db.RunMigrations(config, logger, conn)
 
-	testModel := teatest.NewTestModel(t, ui.NewModel(config, logger))
+	testModel := teatest.NewTestModel(t, ui.NewModel(config, logger, conn))
 
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {

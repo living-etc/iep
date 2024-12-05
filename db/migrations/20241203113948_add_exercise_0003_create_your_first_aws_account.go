@@ -1,10 +1,16 @@
 package migrations
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+)
 
 func Init_20241203113948_add_exercise_0003_create_your_first_aws_account() Migration {
 	content, err := os.ReadFile(
-		"cmd/db/migrations/markdown/20241203113948_add_exercise_0003_create_your_first_aws_account.md",
+		filepath.Join(
+			MARKDOWN_PATH,
+			"20241203113948_add_exercise_0003_create_your_first_aws_account.md",
+		),
 	)
 	if err != nil {
 		panic(err)
