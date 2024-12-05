@@ -1,4 +1,4 @@
-package ui
+package ui_test
 
 import (
 	"os"
@@ -7,24 +7,27 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/log"
 	"github.com/charmbracelet/x/exp/teatest"
+
+	"github.com/living-etc/iep/db"
+	"github.com/living-etc/iep/ui"
 )
 
 func TestNewModel(t *testing.T) {
 	testcases := []struct {
 		name       string
 		keystrokes []tea.KeyMsg
-		modelWant  Model
+		modelWant  ui.Model
 	}{
 		{
 			name:      "j",
-			modelWant: Model{cursor: 1},
+			modelWant: ui.Model{Cursor: 1},
 			keystrokes: []tea.KeyMsg{
 				{Type: tea.KeyRunes, Runes: []rune("j")},
 			},
 		},
 		{
 			name:      "j-k",
-			modelWant: Model{cursor: 0},
+			modelWant: ui.Model{Cursor: 0},
 			keystrokes: []tea.KeyMsg{
 				{Type: tea.KeyRunes, Runes: []rune("j")},
 				{Type: tea.KeyRunes, Runes: []rune("k")},
@@ -32,7 +35,7 @@ func TestNewModel(t *testing.T) {
 		},
 	}
 
-	config := Config{
+	config := ui.Config{
 		ExerciseDatabase: ":memory:",
 		LogFile:          "/Users/chris/Code/personal/infrastructure-exercism-prototype/log/test.log",
 	}
@@ -41,8 +44,11 @@ func TestNewModel(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	logger := NewLogger(log.DebugLevel, logfile)
-	testModel := teatest.NewTestModel(t, NewModel(config, logger))
+	logger := ui.NewLogger(log.DebugLevel, logfile)
+
+	db.RunMigrations(config, logger)
+
+	testModel := teatest.NewTestModel(t, ui.NewModel(config, logger))
 
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {
@@ -55,11 +61,11 @@ func TestNewModel(t *testing.T) {
 				Runes: []rune("q"),
 			})
 
-			modelGot := testModel.FinalModel(t).(Model)
+			modelGot := testModel.FinalModel(t).(ui.Model)
 			modelWant := testcase.modelWant
 
-			if modelGot.cursor != modelWant.cursor {
-				t.Fatalf("want: %v, got: %v", modelWant.cursor, modelGot.cursor)
+			if modelGot.Cursor != modelWant.Cursor {
+				t.Fatalf("want: %v, got: %v", modelWant.Cursor, modelGot.Cursor)
 			}
 		})
 	}

@@ -51,7 +51,7 @@ type Model struct {
 	outputConsole       OutputConsole
 	help                help.Model
 	focused             string
-	cursor              int
+	Cursor              int
 	logger              *log.Logger
 }
 
@@ -111,7 +111,7 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m *Model) updateSelectedExercise() {
-	m.exerciseList.list.Select(m.cursor)
+	m.exerciseList.list.Select(m.Cursor)
 
 	selectedItem := m.exerciseList.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
@@ -134,13 +134,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "down", "j":
-			if m.focused == "list" && m.cursor < len(m.exerciseList.list.Items())-1 {
-				m.cursor++
+			if m.focused == "list" && m.Cursor < len(m.exerciseList.list.Items())-1 {
+				m.Cursor++
 				m.updateSelectedExercise()
 			}
 		case "up", "k":
-			if m.focused == "list" && m.cursor > 0 {
-				m.cursor--
+			if m.focused == "list" && m.Cursor > 0 {
+				m.Cursor--
 				m.updateSelectedExercise()
 			}
 		case "tab":
