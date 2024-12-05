@@ -16,23 +16,18 @@ import (
 func TestNewModel(t *testing.T) {
 	testcases := []struct {
 		name       string
-		keystrokes []tea.KeyMsg
+		keystrokes string
 		modelWant  ui.Model
 	}{
 		{
-			name:      "j",
-			modelWant: ui.Model{Cursor: 1},
-			keystrokes: []tea.KeyMsg{
-				{Type: tea.KeyRunes, Runes: []rune("j")},
-			},
+			name:       "j",
+			modelWant:  ui.Model{Cursor: 1},
+			keystrokes: "j",
 		},
 		{
-			name:      "j-k",
-			modelWant: ui.Model{Cursor: 0},
-			keystrokes: []tea.KeyMsg{
-				{Type: tea.KeyRunes, Runes: []rune("j")},
-				{Type: tea.KeyRunes, Runes: []rune("k")},
-			},
+			name:       "j-k",
+			modelWant:  ui.Model{Cursor: 0},
+			keystrokes: "jk",
 		},
 	}
 
@@ -55,13 +50,12 @@ func TestNewModel(t *testing.T) {
 	defer conn.Close()
 	db.RunMigrations(config, logger, conn)
 
-	testModel := teatest.NewTestModel(t, ui.NewModel(config, logger, conn))
-
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {
-			for _, keystroke := range testcase.keystrokes {
-				testModel.Send(keystroke)
-			}
+			testModel := teatest.NewTestModel(t, ui.NewModel(config, logger, conn))
+
+			logger.Debug("Sending", "keystroke", testcase.keystrokes)
+			testModel.Type(testcase.keystrokes)
 
 			testModel.Send(tea.KeyMsg{
 				Type:  tea.KeyRunes,
