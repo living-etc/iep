@@ -119,14 +119,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			return m, tea.Quit
 		case "down", "j":
+			m.logger.Debug("[Model::Update] keystroke [j]")
+
 			if m.focused == "list" && m.Cursor < len(m.exerciseList.list.Items())-1 {
 				m.Cursor++
 				m.updateSelectedExercise()
+
+				m.logger.Debug("[Model::Update] incrementing cursor", "cursor", m.Cursor)
 			}
 		case "up", "k":
+			m.logger.Debug("[Model::Update] keystroke [k]")
+
 			if m.focused == "list" && m.Cursor > 0 {
 				m.Cursor--
 				m.updateSelectedExercise()
+
+				m.logger.Debug("[Model::Update] decrementing cursor", "cursor", m.Cursor)
 			}
 		case "tab":
 			if m.focused == "list" {
