@@ -29,6 +29,11 @@ func TestNewModel(t *testing.T) {
 			modelWant:  ui.Model{Cursor: 0},
 			keystrokes: "jk",
 		},
+		{
+			name:       "j-j-j-j",
+			modelWant:  ui.Model{Cursor: 4},
+			keystrokes: "jjjj",
+		},
 	}
 
 	config := ui.Config{
