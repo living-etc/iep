@@ -3,8 +3,6 @@ package ui_test
 import (
 	"context"
 	"os"
-	"path"
-	"runtime"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,18 +12,6 @@ import (
 	"github.com/living-etc/iep/db"
 	"github.com/living-etc/iep/ui"
 )
-
-func TestMain(m *testing.M) {
-	_, filename, _, _ := runtime.Caller(0)
-	cwd := path.Join(path.Dir(filename), "..")
-
-	os.Setenv("XDG_STATE_HOME", cwd+"/.local/state")
-	os.Setenv("XDG_DATA_HOME", cwd+"/.local/share")
-
-	exitCode := m.Run()
-
-	os.Exit(exitCode)
-}
 
 func TestNewModel(t *testing.T) {
 	testcases := []struct {

@@ -3,9 +3,7 @@ package db_test
 import (
 	"context"
 	"os"
-	"path"
 	"reflect"
-	"runtime"
 	"testing"
 
 	"github.com/charmbracelet/log"
@@ -17,17 +15,6 @@ import (
 	"github.com/living-etc/iep/db/test_migrations"
 	"github.com/living-etc/iep/ui"
 )
-
-func TestMain(m *testing.M) {
-	_, filename, _, _ := runtime.Caller(0)
-	cwd := path.Join(path.Dir(filename), "..")
-
-	os.Setenv("XDG_STATE_HOME", cwd+"/.local/state")
-
-	exitCode := m.Run()
-
-	os.Exit(exitCode)
-}
 
 func TestGet(t *testing.T) {
 	test_cases := []struct {
