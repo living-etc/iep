@@ -14,8 +14,6 @@ import (
 
 func main() {
 	config := ui.NewConfig()
-	config.ExerciseDatabase = "/Users/chris/Code/personal/infrastructure-exercism-prototype/bin/exercises.db"
-	config.LogFile = "/Users/chris/Code/personal/infrastructure-exercism-prototype/log/iep.log"
 
 	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {

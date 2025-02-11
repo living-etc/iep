@@ -11,14 +11,20 @@ type Config struct {
 }
 
 const (
-	APP_NAME = "iep"
+	APP_NAME               = "iep"
+	EXERCISE_DB_FILE       = "exercises.db"
+	LOG_FILE               = "iep.log"
+	XDG_STATE_HOME_DEFAULT = ".local/state"
 )
 
-// TODO need to handle situations where XDG_CONFIG_HOME isn't set
-// Needs to work on Linux and Mac OS
 func NewConfig() Config {
+	stateHome := os.Getenv("XDG_STATE_HOME")
+	if stateHome == "" {
+		stateHome = filepath.Join(os.Getenv("HOME"), XDG_STATE_HOME_DEFAULT)
+	}
+
 	return Config{
-		ExerciseDatabase: filepath.Join(os.Getenv("XDG_STATE_HOME"), APP_NAME, "db/exercises.db"),
-		LogFile:          filepath.Join(os.Getenv("XDG_STATE_HOME"), APP_NAME, "log/iep.log"),
+		ExerciseDatabase: filepath.Join(stateHome, APP_NAME, EXERCISE_DB_FILE),
+		LogFile:          filepath.Join(stateHome, APP_NAME, LOG_FILE),
 	}
 }
