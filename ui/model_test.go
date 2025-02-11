@@ -3,6 +3,8 @@ package ui_test
 import (
 	"context"
 	"os"
+	"path"
+	"runtime"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -12,6 +14,18 @@ import (
 	"github.com/living-etc/iep/db"
 	"github.com/living-etc/iep/ui"
 )
+
+func TestMain(m *testing.M) {
+	_, filename, _, _ := runtime.Caller(0)
+	cwd := path.Join(path.Dir(filename), "..")
+
+	os.Setenv("XDG_STATE_HOME", cwd+"/.local/state")
+	os.Setenv("XDG_DATA_HOME", cwd+"/.local/share")
+
+	exitCode := m.Run()
+
+	os.Exit(exitCode)
+}
 
 func TestNewModel(t *testing.T) {
 	testcases := []struct {
@@ -36,10 +50,8 @@ func TestNewModel(t *testing.T) {
 		},
 	}
 
-	config := ui.Config{
-		ExerciseDatabase: ":memory:",
-		LogFile:          "/Users/chris/Code/personal/infrastructure-exercism-prototype/log/test.log",
-	}
+	config := ui.NewConfig()
+	config.ExerciseDatabase = ":memory:"
 
 	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {
