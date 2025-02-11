@@ -5,13 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/charmbracelet/log"
 )
 
-const (
-	// TODO remove this hard coded file path
-	MARKDOWN_PATH = "/Users/chris/Code/personal/infrastructure-exercism-prototype/db/migrations/markdown"
+var (
+	currentPath, _ = os.Executable()
+	MARKDOWN_PATH  = filepath.Join(currentPath, "../db/migrations/markdown")
 )
 
 type Migration struct {
