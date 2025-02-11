@@ -20,35 +20,38 @@ func TestNewConfig(t *testing.T) {
 		configWant           ui.Config
 	}{
 		{
-			name: "XDG_STATE_HOME_default_value",
+			name: "XDG_*_HOME_default_value",
 			environmentVariables: []EnvVar{
 				{name: "HOME", value: "/home/devops"},
 				{name: "XDG_STATE_HOME", value: "/home/devops/.local/state"},
+				{name: "XDG_DATA_HOME", value: "/home/devops/.local/share"},
 			},
 			configWant: ui.Config{
-				ExerciseDatabase: "/home/devops/.local/state/iep/exercises.db",
+				ExerciseDatabase: "/home/devops/.local/share/iep/exercises.db",
 				LogFile:          "/home/devops/.local/state/iep/iep.log",
 			},
 		},
 		{
-			name: "XDG_STATE_HOME_custom_value",
+			name: "XDG_*_HOME_custom_value",
 			environmentVariables: []EnvVar{
 				{name: "HOME", value: "/home/devops"},
 				{name: "XDG_STATE_HOME", value: "/home/devops/.state"},
+				{name: "XDG_DATA_HOME", value: "/home/devops/.share"},
 			},
 			configWant: ui.Config{
-				ExerciseDatabase: "/home/devops/.state/iep/exercises.db",
+				ExerciseDatabase: "/home/devops/.share/iep/exercises.db",
 				LogFile:          "/home/devops/.state/iep/iep.log",
 			},
 		},
 		{
-			name: "XDG_STATE_HOME_undefined",
+			name: "XDG_*_HOME_undefined",
 			environmentVariables: []EnvVar{
 				{name: "HOME", value: "/home/devops"},
 				{name: "XDG_STATE_HOME", value: ""},
+				{name: "XDG_DATA_HOME", value: ""},
 			},
 			configWant: ui.Config{
-				ExerciseDatabase: "/home/devops/.local/state/iep/exercises.db",
+				ExerciseDatabase: "/home/devops/.local/share/iep/exercises.db",
 				LogFile:          "/home/devops/.local/state/iep/iep.log",
 			},
 		},

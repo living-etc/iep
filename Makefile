@@ -1,6 +1,7 @@
 .PHONY: iep
 
 export XDG_STATE_HOME=$(shell pwd)/.local/state
+export XDG_DATA_HOME=$(shell pwd)/.local/share
 
 default: iep
 
