@@ -4,10 +4,44 @@ Somes notes I keep for the development of the app
 
 ## TODO
 
-- Two existing exercises written properly, not with lorem ipsum
-- Exercise state updated by pressing enter (Deployed/Not Deployed)
-  - Presisted between sessions
+### Final push for MVP
+
+#### Bugs
+
+- Some exercises in list being skipped when navigating up and down
+- UI elements fallen off right of screen
+
+#### Features
+
+- Write a single exercise properly about installing and configuring nginx
+  - Only testing nginx, not AWS. Do all AWS setup during provisioning
+- Deploy an EC2 instance to AWS
+  - Wrap around Terraform for this
+  - Show a progress bar
+  - Print terraform output to output console
+- Run tests against deployed EC2 instance
+  - Start all tests with failed styling in the ecercise description
+  - Mark test as passed or failed by updating style in exercise description
+  - Persist the state of each test in a user database of some description
+    - Probably state stored in the exercises db
 - Help updated based on deployment state of exercise
+  - When undeployed, show how to deploy
+  - When deployed, show how to undeploy
+
+### Walking skeleton post-MVP
+
+- Package for Debian
+- Package for Ubuntu
+- Package for Fedora
+- Package for macOS (both Homebrew and a dmg installer file)
+- Package for Windows (both chocolately and an exe installer file)
+- Do all of these automatically in a pipeline
+- Documentation in README
+  - Installation instructions
+  - Gifs showing basic features
+    - Navigating the list and deploying an exercise
+    - Running tests against an exercise
+    - Tearing down exercse infrastructure
 
 ## Some variables and things
 
