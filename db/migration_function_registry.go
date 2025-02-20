@@ -15,5 +15,6 @@ func migrationFunctionRegistry() map[string]func() migrations.Migration {
 		"20241206132441_add_exercise_0004_introduction_to_source_control_with_git": migrations.Init_20241206132441_add_exercise_0004_introduction_to_source_control_with_git,
 		"20241206141041_add_exercise_0005_intermediate_git":                        migrations.Init_20241206141041_add_exercise_0005_intermediate_git,
 		"20241206141112_add_exercise_0006_advanced_git":                            migrations.Init_20241206141112_add_exercise_0006_advanced_git,
+		"20250220155451_create_tests_table":                                        migrations.Init_20250220155451_create_tests_table,
 	}
 }
