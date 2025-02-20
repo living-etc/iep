@@ -1,16 +1,7 @@
-package migrations
+# Deploy A Web App
 
-func Init_20240922172317_add_exercise_0001_depoy_a_webapp() Migration {
-	return Migration{
-		Id:        "20240922172317_add_exercise_0001_depoy_a_webapp",
-		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
-		Args: []any{
-			"0001-deploy-a-webapp",
-			"Deploy a Web Server with Nginx and AWS",
-			"Learn how to put a website on the internet using Nginx and run it on an EC2 instance.",
-			`# Deploy A Web App
-
-In this exercise you will deploy a web app to a Linux virtual machine running on AWS. In doing so, you will learn how to
+In this exercise you will deploy a web app to a Linux virtual machine running on
+AWS. In doing so, you will learn how to
 
 - start a web app and keep it running using Systemd
 - install and configure nginx to send traffic to the web app
@@ -18,7 +9,7 @@ In this exercise you will deploy a web app to a Linux virtual machine running on
 
 The final setup will look like this:
 
-` + "```" + `
+```sh
                  ┌──────────────────────────────────────┐
                  │                                      │
                  │  ┌────────────────────────────────┐  │
@@ -34,7 +25,16 @@ The final setup will look like this:
                  │                                      │
                  │       Security Group (Firewall)      │
                  └──────────────────────────────────────┘
-` + "```",
-		},
-	}
-}
+```
+
+## What's the point of Nginx?
+
+In our setup, Nginx is playing the role of a "reverse proxy", which is a system
+that sits between the client (Users) and server (App) and provides features such
+as load balancing, security and TLS termination.
+
+## Tests
+
+- [ ] Nginx is installed
+- [ ] Nginx is running with Systemd
+- [ ] Nginx is listening on port 80
