@@ -16,3 +16,6 @@ db-migration:
 
 run:
 	./bin/iep
+
+logs:
+	tail -f .local/state/iep/iep.log
