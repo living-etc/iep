@@ -141,14 +141,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		styles := getStyles()
 
-		m.logger.Debug(
-			"[Model::Update::WindowSizeMsg]",
-			"new_height",
-			msg.Height,
-			"new_width",
-			msg.Width,
-		)
-
 		_, frameHeight := styles.unfocused.GetFrameSize()
 
 		helpHeight := lipgloss.Height(m.help.View(ExerciseDescriptionHelp{}))
@@ -161,28 +153,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.outputConsole.viewport.Width = 80
 		m.outputConsole.viewport.Height = msg.Height - frameHeight - helpHeight
-
-		m.logger.Debug(
-			"[Model::Update::WindowSizeMsg] exercise list resized",
-			"height",
-			m.exerciseList.list.Height(),
-			"width",
-			m.exerciseList.list.Width(),
-		)
-		m.logger.Debug(
-			"[Model::Update::WindowSizeMsg] exercise description resized",
-			"height",
-			m.exerciseDescription.viewport.Height,
-			"width",
-			m.exerciseDescription.viewport.Width,
-		)
-		m.logger.Debug(
-			"[Model::Update::WindowSizeMsg] output console resized",
-			"height",
-			m.outputConsole.viewport.Height,
-			"width",
-			m.outputConsole.viewport.Width,
-		)
 	}
 
 	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
