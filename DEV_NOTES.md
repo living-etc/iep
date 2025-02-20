@@ -9,7 +9,6 @@ Somes notes I keep for the development of the app
 #### Bugs
 
 - Some exercises in list being skipped when navigating up and down
-- UI elements fallen off right of screen
 
 #### Features
 

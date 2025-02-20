@@ -125,7 +125,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Cursor++
 				m.updateSelectedExercise()
 
-				m.logger.Debug("[Model::Update] incrementing cursor", "cursor", m.Cursor)
+				m.logger.Debug("[Model::Update] incrementing cursor", "new_cursor", m.Cursor)
 			}
 		case "up", "k":
 			m.logger.Debug("[Model::Update] keystroke [k]")
@@ -134,7 +134,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.Cursor--
 				m.updateSelectedExercise()
 
-				m.logger.Debug("[Model::Update] decrementing cursor", "cursor", m.Cursor)
+				m.logger.Debug("[Model::Update] decrementing cursor", "new_cursor", m.Cursor)
 			}
 		case "tab":
 			if m.focused == "list" {
@@ -162,20 +162,48 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		styles := getStyles()
 
-		_, frameHeight := styles.unfocused.GetFrameSize()
+		m.logger.Debug(
+			"[Model::Update::WindowSizeMsg]",
+			"new_height",
+			msg.Height,
+			"new_width",
+			msg.Width,
+		)
 
-		scalingFactor := msg.Width / 100
+		_, frameHeight := styles.unfocused.GetFrameSize()
 
 		helpHeight := lipgloss.Height(m.help.View(ExerciseDescriptionHelp{}))
 
-		m.exerciseList.list.SetWidth(scalingFactor * 53)
+		m.exerciseList.list.SetWidth(40)
 		m.exerciseList.list.SetHeight(msg.Height - frameHeight - helpHeight)
 
-		m.exerciseDescription.viewport.Width = scalingFactor * 80
+		m.exerciseDescription.viewport.Width = 80
 		m.exerciseDescription.viewport.Height = msg.Height - frameHeight - helpHeight
 
-		m.outputConsole.viewport.Width = scalingFactor * 52
+		m.outputConsole.viewport.Width = 80
 		m.outputConsole.viewport.Height = msg.Height - frameHeight - helpHeight
+
+		m.logger.Debug(
+			"[Model::Update::WindowSizeMsg] exercise list resized",
+			"height",
+			m.exerciseList.list.Height(),
+			"width",
+			m.exerciseList.list.Width(),
+		)
+		m.logger.Debug(
+			"[Model::Update::WindowSizeMsg] exercise description resized",
+			"height",
+			m.exerciseDescription.viewport.Height,
+			"width",
+			m.exerciseDescription.viewport.Width,
+		)
+		m.logger.Debug(
+			"[Model::Update::WindowSizeMsg] output console resized",
+			"height",
+			m.outputConsole.viewport.Height,
+			"width",
+			m.outputConsole.viewport.Width,
+		)
 	}
 
 	m.exerciseDescription, cmd = m.exerciseDescription.Update(msg)
