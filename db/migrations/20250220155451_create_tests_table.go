@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS tests(
   exercise_id TEXT NOT NULL,
   resource_type TEXT NOT NULL,
   resource_name TEXT NOT NULL,
-  resource_state TEXT NOT NULL
+  resource_attribute TEXT NOT NULL,
+  resource_attribute_value TEXT NOT NULL
 )
     `,
 		Args: []any{},
