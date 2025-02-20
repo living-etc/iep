@@ -39,7 +39,6 @@ type Model struct {
 	outputConsole       OutputConsole
 	help                help.Model
 	focused             string
-	Cursor              int
 	logger              *log.Logger
 }
 
@@ -96,8 +95,6 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m *Model) updateSelectedExercise() {
-	m.exerciseList.list.Select(m.Cursor)
-
 	selectedItem := m.exerciseList.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
 
@@ -118,24 +115,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		case "down", "j":
-			m.logger.Debug("[Model::Update] keystroke [j]")
-
-			if m.focused == "list" && m.Cursor < len(m.exerciseList.list.Items())-1 {
-				m.Cursor++
-				m.updateSelectedExercise()
-
-				m.logger.Debug("[Model::Update] incrementing cursor", "new_cursor", m.Cursor)
-			}
-		case "up", "k":
-			m.logger.Debug("[Model::Update] keystroke [k]")
-
-			if m.focused == "list" && m.Cursor > 0 {
-				m.Cursor--
-				m.updateSelectedExercise()
-
-				m.logger.Debug("[Model::Update] decrementing cursor", "new_cursor", m.Cursor)
-			}
 		case "tab":
 			if m.focused == "list" {
 				m.focused = "viewport"
@@ -220,6 +199,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m Model) View() string {
 	var listRendered, exerciseDescriptionRendered, outputConsoleRendered, helpRendered string
+
+	m.updateSelectedExercise()
 
 	styles := getStyles()
 

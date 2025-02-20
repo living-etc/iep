@@ -6,10 +6,6 @@ Somes notes I keep for the development of the app
 
 ### Final push for MVP
 
-#### Bugs
-
-- Some exercises in list being skipped when navigating up and down
-
 #### Features
 
 - Write a single exercise properly about installing and configuring nginx
