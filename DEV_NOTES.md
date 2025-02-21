@@ -54,6 +54,7 @@ time and packaged with the application.
 - Document migration mechanism
 - Get rid of the migration registry and figure out how to list the migrations
   dynamically
+- Have the tests use the real migrations instead of dedicated test migrations
 
 ## XDG Variable Reference
 
