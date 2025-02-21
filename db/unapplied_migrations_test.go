@@ -139,7 +139,7 @@ In this exercise you will set up a DNS subdomain`,
 		},
 	}
 
-	config := ui.NewConfig()
+	config, _ := ui.NewConfig([]byte{})
 	config.ExerciseDatabase = ":memory:"
 
 	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)

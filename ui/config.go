@@ -1,13 +1,14 @@
 package ui
 
 import (
+	"encoding/json"
 	"os"
 	"path/filepath"
 )
 
 type Config struct {
-	ExerciseDatabase string
-	LogFile          string
+	ExerciseDatabase string `json:"exercises-db-file"`
+	LogFile          string `json:"log-file"`
 	ConfigFile       string
 }
 
@@ -24,16 +25,36 @@ var xdgEnvDefaultValues = map[string]string{
 	"XDG_STATE_HOME":  ".local/state",
 }
 
-func NewConfig() Config {
+func NewConfig(configJson []byte) (*Config, error) {
+	var config *Config
+
+	if len(configJson) > 0 {
+		config, err := parseJsonConfig(configJson)
+		if err != nil {
+			return nil, err
+		}
+		return config, nil
+	}
+
 	stateHome := getXdgEnv("XDG_STATE_HOME")
 	dataHome := getXdgEnv("XDG_DATA_HOME")
 	configHome := getXdgEnv("XDG_CONFIG_HOME")
 
-	return Config{
+	config = &Config{
 		ExerciseDatabase: filepath.Join(dataHome, APP_NAME, EXERCISE_DB_FILE),
 		LogFile:          filepath.Join(stateHome, APP_NAME, LOG_FILE),
 		ConfigFile:       filepath.Join(configHome, APP_NAME, CONFIG_FILE),
 	}
+
+	return config, nil
+}
+
+func parseJsonConfig(configJson []byte) (*Config, error) {
+	var config Config
+
+	json.Unmarshal(configJson, &config)
+
+	return &config, nil
 }
 
 func getXdgEnv(envvar string) string {

@@ -15,7 +15,7 @@ db-migration:
 	touch "db/migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.go"
 
 run:
-	./bin/iep
+	./bin/iep -config-file=.config/iep/config.json
 
 logs:
 	tail -f .local/state/iep/iep.log

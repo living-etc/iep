@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"os"
 
@@ -13,7 +14,25 @@ import (
 )
 
 func main() {
-	config := ui.NewConfig()
+	configFilePath := flag.String(
+		"config-file",
+		"",
+		"Path to a configuration file. This will override all other configuration.",
+	)
+	flag.Parse()
+
+	var configFileContents []byte
+	if _, err := os.Stat(*configFilePath); err == nil {
+		configFileContents, err = os.ReadFile(*configFilePath)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	config, err := ui.NewConfig(configFileContents)
+	if err != nil {
+		panic(err)
+	}
 
 	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
 	if err != nil {

@@ -40,9 +40,10 @@ type Model struct {
 	help                help.Model
 	focused             string
 	logger              *log.Logger
+	conn                *sql.DB
 }
 
-func NewModel(config Config, logger *log.Logger, conn *sql.DB) Model {
+func NewModel(config *Config, logger *log.Logger, conn *sql.DB) Model {
 	ctx := context.Background()
 
 	rows, err := conn.QueryContext(ctx, getAllExercisesQuery)

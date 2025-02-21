@@ -39,7 +39,7 @@ func Exec(ctx context.Context, conn *sql.DB, statement string, args ...any) sql.
 	return res
 }
 
-func RunMigrations(config ui.Config, logger *log.Logger, conn *sql.DB) error {
+func RunMigrations(config *ui.Config, logger *log.Logger, conn *sql.DB) error {
 	ctx := context.Background()
 
 	unapplied_migrations := Get(ctx, conn, logger)
