@@ -38,6 +38,11 @@ Somes notes I keep for the development of the app
     - Running tests against an exercise
     - Tearing down exercse infrastructure
 
+### Other refactorings
+
+- Create a logger interface to use in function signatures
+- Create a config interface to use in function sicnatures
+
 ## Some variables and things
 
 ```sh
