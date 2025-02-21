@@ -18,7 +18,7 @@ func Init_20240922172317_add_exercise_0001_deploy_a_webapp() Migration {
 
 	return Migration{
 		Id:        "20240922172317_add_exercise_0001_deploy_a_webapp",
-		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
+		Statement: "INSERT INTO exercises(id, name, description, body) VALUES(?, ?, ?, ?)",
 		Args: []any{
 			"0001-deploy-a-webapp",
 			"Deploy a Web Server with Nginx and AWS",

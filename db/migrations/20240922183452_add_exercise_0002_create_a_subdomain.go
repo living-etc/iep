@@ -3,7 +3,7 @@ package migrations
 func Init_20240922183452_add_exercise_0002_create_a_subdomain() Migration {
 	return Migration{
 		Id:        "20240922183452_add_exercise_0002_create_a_subdomain",
-		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
+		Statement: "INSERT INTO exercises(id, name, description, body) VALUES(?, ?, ?, ?)",
 		Args: []any{
 			"0002-create-a-subdomain",
 			"Create a DNS subdomain",

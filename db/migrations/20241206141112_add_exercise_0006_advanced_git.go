@@ -18,7 +18,7 @@ func Init_20241206141112_add_exercise_0006_advanced_git() Migration {
 
 	return Migration{
 		Id:        "20241206141112_add_exercise_0006_advanced_git",
-		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
+		Statement: "INSERT INTO exercises(id, name, description, body) VALUES(?, ?, ?, ?)",
 		Args: []any{
 			"0005-advanced-git",
 			"Advanced Git",

@@ -18,7 +18,7 @@ func Init_20241206132441_add_exercise_0004_introduction_to_source_control_with_g
 
 	return Migration{
 		Id:        "20241206132441_add_exercise_0004_introduction_to_source_control_with_git",
-		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
+		Statement: "INSERT INTO exercises(id, name, description, body) VALUES(?, ?, ?, ?)",
 		Args: []any{
 			"0004-intro-to-git",
 			"Introduction to source control with Git",

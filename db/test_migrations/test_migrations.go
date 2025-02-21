@@ -9,8 +9,7 @@ func Init_20240828233901_create_exercises_table() migrations.Migration {
 		Id: "20240828233901_create_exercises_table",
 		Statement: `
 CREATE TABLE IF NOT EXISTS exercises(
-  id INTEGER PRIMARY KEY,
-  exercise_id TEXT NOT NULL,
+  id TEXT NOT NULL PRIMARY KEY,
   name TEXT NOT NULL,
   description TEXT NOT NULL,
   body TEXT NOT NULL,
@@ -23,7 +22,7 @@ CREATE TABLE IF NOT EXISTS exercises(
 func Init_20240829233901_add_first_exercise() migrations.Migration {
 	return migrations.Migration{
 		Id:        "20240829233901_add_first_exercise",
-		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
+		Statement: "INSERT INTO exercises(id, name, description, body) VALUES(?, ?, ?, ?)",
 		Args: []any{
 			"0001-deploy-a-web-server",
 			"Deploy a Web Server with Nginx and AWS",
@@ -62,7 +61,7 @@ The final setup will look like this:
 func Init_20240830233901_modify_first_exercise() migrations.Migration {
 	return migrations.Migration{
 		Id:        "20240830233901_modify_first_exercise",
-		Statement: "UPDATE exercises SET description = '?' WHERE exercise_id = '?'",
+		Statement: "UPDATE exercises SET description = '?' WHERE id = '?'",
 		Args: []any{
 			"Deploy a Web Server with Nginx on AWS",
 			"0001-deploy-a-web-server",
@@ -73,7 +72,7 @@ func Init_20240830233901_modify_first_exercise() migrations.Migration {
 func Init_20240831233901_add_second_exercise() migrations.Migration {
 	return migrations.Migration{
 		Id:        "20240831233901_add_second_exercise",
-		Statement: "INSERT INTO exercises(exercise_id, name, description, body) VALUES(?, ?, ?, ?)",
+		Statement: "INSERT INTO exercises(id, name, description, body) VALUES(?, ?, ?, ?)",
 		Args: []any{
 			"0002-set-up-a-subdomain",
 			"Set up a Subdomain",
