@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"database/sql"
+	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
@@ -68,6 +69,7 @@ func NewModel(config *Config, logger *log.Logger, conn *sql.DB) Model {
 		help:                help.New(),
 		focused:             "list",
 		logger:              logger,
+		conn:                conn,
 	}
 
 	m.exerciseList.EnableScroll(true)
@@ -102,6 +104,15 @@ func (m *Model) updateSelectedExercise() {
 		m.logger.Fatal(err)
 	}
 	m.exerciseDescription.viewport.SetContent(glamouriseContent)
+
+	tests := selectedExercise.Tests(m.conn, m.logger)
+
+	var b strings.Builder
+	for _, test := range tests {
+		b.WriteString(test.Name + "\n")
+	}
+
+	m.outputConsole.viewport.SetContent(b.String())
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -134,8 +145,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.exerciseDescription.EnableScroll(false)
 				m.outputConsole.EnableScroll(false)
 			}
-		case "enter":
-			m.outputConsole.LogEvent("Enter pressed")
+			// case "enter":
+			//	m.outputConsole.LogEvent("Enter pressed")
 		}
 	case tea.WindowSizeMsg:
 		styles := getStyles()
