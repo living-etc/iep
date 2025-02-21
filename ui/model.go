@@ -54,9 +54,7 @@ func NewModel(config Config, logger *log.Logger, conn *sql.DB) Model {
 	var items []list.Item
 	for rows.Next() {
 		var e Exercise
-		var ignoreInt int
-		var ignoreString string
-		if err := rows.Scan(&ignoreInt, &ignoreString, &e.title, &e.description, &e.content); err != nil {
+		if err := rows.Scan(&e.Id, &e.title, &e.description, &e.content); err != nil {
 			logger.Fatal(err)
 		}
 		items = append(items, e)

@@ -1,7 +1,7 @@
 package ui
 
 type Exercise struct {
-	title, description, content string
+	Id, title, description, content string
 }
 
 func (i Exercise) Title() string { return i.title }
