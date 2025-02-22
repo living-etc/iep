@@ -1,9 +1,9 @@
-package migrations
+CREATE TABLE IF NOT EXISTS exercises(
+  id TEXT NOT NULL PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT NOT NULL
+);
 
-func Init_20250220155451_create_tests_table() Migration {
-	return Migration{
-		Id: "20250220155451_create_tests_table",
-		Statement: `
 CREATE TABLE IF NOT EXISTS tests(
   id INTEGER PRIMARY KEY,
   name TEXT NOT NULL,
@@ -13,8 +13,4 @@ CREATE TABLE IF NOT EXISTS tests(
   resource_attribute TEXT NOT NULL,
   resource_attribute_value TEXT NOT NULL,
   negation INTEGER NOT NULL
-)
-    `,
-		Args: []any{},
-	}
-}
+);

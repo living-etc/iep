@@ -8,7 +8,7 @@ import (
 )
 
 type Exercise struct {
-	Id, title, description, content string
+	Id, title, description string
 }
 
 func NewExercise(attributes map[string]string) Exercise {
@@ -16,7 +16,6 @@ func NewExercise(attributes map[string]string) Exercise {
 		Id:          attributes["Id"],
 		title:       attributes["title"],
 		description: attributes["description"],
-		content:     attributes["content"],
 	}
 }
 

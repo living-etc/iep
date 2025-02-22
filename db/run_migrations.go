@@ -42,7 +42,7 @@ func Exec(ctx context.Context, conn *sql.DB, statement string, args ...any) sql.
 func RunMigrations(config *ui.Config, logger *log.Logger, conn *sql.DB) error {
 	ctx := context.Background()
 
-	unapplied_migrations := Get(ctx, conn, logger)
+	unapplied_migrations := UnappliedMigrations(config.MigrationsPath, ctx, conn, logger)
 	logger.Debug("found the following unapplied migrations:", unapplied_migrations)
 
 	if len(unapplied_migrations) == 0 {

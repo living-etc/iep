@@ -3,6 +3,7 @@ package ui
 import (
 	"context"
 	"database/sql"
+	"embed"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -14,6 +15,9 @@ import (
 	_ "github.com/tursodatabase/libsql-client-go/libsql"
 	_ "modernc.org/sqlite"
 )
+
+//go:embed exercises
+var exercises embed.FS
 
 const (
 	getAllExercisesQuery = "SELECT * FROM exercises;"
@@ -56,7 +60,7 @@ func NewModel(config *Config, logger *log.Logger, conn *sql.DB) Model {
 	var items []list.Item
 	for rows.Next() {
 		var e Exercise
-		if err := rows.Scan(&e.Id, &e.title, &e.description, &e.content); err != nil {
+		if err := rows.Scan(&e.Id, &e.title, &e.description); err != nil {
 			logger.Fatal(err)
 		}
 		items = append(items, e)
@@ -82,7 +86,12 @@ func NewModel(config *Config, logger *log.Logger, conn *sql.DB) Model {
 	selectedItem := m.exerciseList.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
 
-	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
+	exerciseContent, err := exercises.ReadFile("exercises/" + selectedExercise.Id + ".md")
+	if err != nil {
+		logger.Error(err)
+	}
+
+	glamouriseContent, err := glamour.Render(string(exerciseContent), "dark")
 	if err != nil {
 		logger.Fatal(err)
 	}
@@ -99,7 +108,12 @@ func (m *Model) updateSelectedExercise() {
 	selectedItem := m.exerciseList.list.SelectedItem()
 	selectedExercise := selectedItem.(Exercise)
 
-	glamouriseContent, err := glamour.Render(selectedExercise.content, "dark")
+	exerciseContent, err := exercises.ReadFile("exercises/" + selectedExercise.Id + ".md")
+	if err != nil {
+		m.logger.Error(err)
+	}
+
+	glamouriseContent, err := glamour.Render(string(exerciseContent), "dark")
 	if err != nil {
 		m.logger.Fatal(err)
 	}

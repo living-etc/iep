@@ -14,6 +14,8 @@ import (
 )
 
 func main() {
+	cwd, _ := os.Getwd()
+	os.Setenv("HOME", cwd)
 	configFilePath := flag.String(
 		"config-file",
 		"",
@@ -45,13 +47,13 @@ func main() {
 
 	conn, err := db.InitDb(ctx, config.ExerciseDatabase)
 	if err != nil {
-		logger.Fatal(err)
+		panic(err)
 	}
 	defer conn.Close()
 
 	err = db.RunMigrations(config, logger, conn)
 	if err != nil {
-		logger.Fatal(err)
+		panic(err)
 	}
 
 	if _, err := tea.NewProgram(

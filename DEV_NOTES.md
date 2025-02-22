@@ -57,8 +57,6 @@ time and packaged with the application.
 
 - Decouple the migrations from startup. Turn it into a make rule instead.
 - Document migration mechanism
-- Get rid of the migration registry and figure out how to list the migrations
-  dynamically
 - Have the tests use the real migrations instead of dedicated test migrations
 
 ## XDG Variable Reference

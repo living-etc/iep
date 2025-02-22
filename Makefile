@@ -1,7 +1,10 @@
 .PHONY: iep
 
-export XDG_STATE_HOME=$(shell pwd)/.local/state
-export XDG_DATA_HOME=$(shell pwd)/.local/share
+CWD=$(shell pwd)
+
+export XDG_STATE_HOME=${CWD}/.local/state
+export XDG_DATA_HOME=${CWD}/.local/share
+export XDG_CONFIG_HOME=${CWD}/.config
 
 default: iep
 
@@ -12,7 +15,7 @@ iep:
 	go build -o ./bin ./cmd/iep
 
 db-migration:
-	touch "db/migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.go"
+	touch "db/migrations/$(shell date +%Y%m%d%H%M%S)_placeholder.sql"
 
 run:
 	./bin/iep -config-file=.config/iep/config.json

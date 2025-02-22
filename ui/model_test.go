@@ -3,6 +3,7 @@ package ui_test
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"testing"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -22,7 +23,14 @@ func TestNewModel(t *testing.T) {
 		},
 	}
 
-	config, _ := ui.NewConfig([]byte{})
+	configContent, err := os.ReadFile(
+		filepath.Join(os.Getenv("XDG_CONFIG_HOME"), "iep/config.json"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	config, _ := ui.NewConfig(configContent)
 	config.ExerciseDatabase = ":memory:"
 
 	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)

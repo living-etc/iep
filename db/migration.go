@@ -1,4 +1,4 @@
-package migrations
+package db
 
 import (
 	"context"
@@ -9,12 +9,9 @@ import (
 	"github.com/charmbracelet/log"
 )
 
-const MARKDOWN_PATH = "/Users/chris/Code/personal/infrastructure-exercism-prototype/db/migrations/markdown"
-
 type Migration struct {
-	Id        string
-	Statement string
-	Args      []any
+	Id       string
+	Filepath string
 }
 
 func (m *Migration) Run(
@@ -22,7 +19,11 @@ func (m *Migration) Run(
 	db *sql.DB,
 	logger *log.Logger,
 ) error {
-	exec(ctx, db, m.Statement, m.Args...)
+	statements, err := os.ReadFile(m.Filepath)
+	if err != nil {
+		panic(err)
+	}
+	exec(ctx, db, string(statements))
 	exec(ctx, db, "INSERT INTO migrations (id) values (?)", m.Id)
 
 	return nil
