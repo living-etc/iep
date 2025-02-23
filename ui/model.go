@@ -160,8 +160,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.exerciseDescription.EnableScroll(false)
 				m.outputConsole.EnableScroll(false)
 			}
-			// case "enter":
-			//	m.outputConsole.LogEvent("Enter pressed")
+		case "t":
+			selectedItem := m.exerciseList.list.SelectedItem()
+			selectedExercise := selectedItem.(Exercise)
+			tests := selectedExercise.Tests(m.conn, m.logger)
+
+			for _, test := range tests {
+				result, err := test.Run(m.logger)
+				if err != nil {
+					m.logger.Error(err)
+				}
+
+				err = test.RecordResult(m.conn, result)
+				if err != nil {
+					m.logger.Error(err)
+				}
+			}
 		}
 	case tea.WindowSizeMsg:
 		styles := getStyles()

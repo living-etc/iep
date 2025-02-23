@@ -8,19 +8,23 @@ func (keymap ExerciseListHelp) ShortHelp() []key.Binding {
 	return []key.Binding{
 		key.NewBinding(
 			key.WithKeys("k", "up"),
-			key.WithHelp("↑/k", "Select up"),
+			key.WithHelp("↑/k", "Select Up"),
 		),
 		key.NewBinding(
 			key.WithKeys("j", "down"),
-			key.WithHelp("↓/j", "move down"),
+			key.WithHelp("↓/j", "Move Down"),
 		),
 		key.NewBinding(
 			key.WithKeys("tab"),
-			key.WithHelp("tab", "Focus right"),
+			key.WithHelp("tab", "Focus Right"),
 		),
 		key.NewBinding(
 			key.WithKeys("enter"),
 			key.WithHelp("enter", "Deploy Exercise"),
+		),
+		key.NewBinding(
+			key.WithKeys("t"),
+			key.WithHelp("t", "Run Tests"),
 		),
 	}
 }
