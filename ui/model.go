@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -123,7 +124,7 @@ func (m *Model) updateSelectedExercise() {
 
 	var b strings.Builder
 	for _, test := range tests {
-		b.WriteString(test.Name + "\n")
+		b.WriteString(fmt.Sprintf("%t - %s\n", test.Result, test.Name))
 	}
 
 	m.outputConsole.viewport.SetContent(b.String())

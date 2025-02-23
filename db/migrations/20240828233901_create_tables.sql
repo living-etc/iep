@@ -12,5 +12,6 @@ CREATE TABLE IF NOT EXISTS tests(
   resource_name TEXT NOT NULL,
   resource_attribute TEXT NOT NULL,
   resource_attribute_value TEXT NOT NULL,
-  negation INTEGER NOT NULL
+  negation INTEGER NOT NULL,
+  result INTEGER NOT NULL DEFAULT 0
 );

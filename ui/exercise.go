@@ -50,6 +50,7 @@ func (i Exercise) Tests(conn *sql.DB, logger *log.Logger) []Test {
 			&e.ResourceAttribute,
 			&e.ResourceAttributeValue,
 			&e.Negation,
+			&e.Result,
 		); err != nil {
 			logger.Fatal(err)
 		}

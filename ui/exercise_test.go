@@ -36,6 +36,7 @@ func TestTests(t *testing.T) {
 					ResourceAttribute:      "Status",
 					ResourceAttributeValue: "install ok installed",
 					Negation:               true,
+					Result:                 false,
 				},
 				{
 					Id:                     2,
@@ -46,12 +47,19 @@ func TestTests(t *testing.T) {
 					ResourceAttribute:      "ActiveState",
 					ResourceAttributeValue: "active",
 					Negation:               true,
+					Result:                 false,
 				},
 			},
 		},
 	}
 
-	config, _ := ui.NewConfig([]byte{})
+	cwd, _ := os.Getwd()
+	config := ui.Config{
+		LogFile:          cwd + "/../.local/state/iep/iep.log",
+		ExerciseDatabase: cwd + "/../.local/share/iep/exercises.db",
+		MigrationsPath:   cwd + "/../db/migrations",
+	}
+
 	config.ExerciseDatabase = ":memory:"
 
 	logfile, err := os.OpenFile(config.LogFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0600)
@@ -66,7 +74,7 @@ func TestTests(t *testing.T) {
 		logger.Fatal(err)
 	}
 	defer conn.Close()
-	db.RunMigrations(config, logger, conn)
+	db.RunMigrations(&config, logger, conn)
 
 	for _, testcase := range testcases {
 		t.Run(testcase.name, func(t *testing.T) {

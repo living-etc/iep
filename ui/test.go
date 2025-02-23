@@ -9,4 +9,5 @@ type Test struct {
 	ResourceAttribute      string
 	ResourceAttributeValue string
 	Negation               bool
+	Result                 bool
 }
